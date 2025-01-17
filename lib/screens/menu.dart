@@ -4,12 +4,16 @@ import 'package:eg/screens/admin/ad_faculty_db.dart';
 import 'package:eg/screens/admin/ad_results.dart';
 import 'package:eg/screens/admin/ad_student_db.dart';
 import 'package:eg/screens/admin/ad_timetable.dart';
+import 'package:eg/screens/complaint.dart';
 import 'package:eg/screens/faculty/fac_assignments.dart';
 import 'package:eg/screens/faculty/fac_attendance.dart';
 import 'package:eg/screens/faculty/fac_dashboard.dart';
 import 'package:eg/screens/faculty/fac_payments.dart';
 import 'package:eg/screens/faculty/fac_results.dart';
 import 'package:eg/screens/faculty/fac_subjects.dart';
+import 'package:eg/screens/notifications.dart';
+import 'package:eg/screens/profile.dart';
+import 'package:eg/screens/settings.dart';
 import 'package:eg/screens/students/stu_assignments.dart';
 import 'package:eg/screens/students/stu_attendance.dart';
 import 'package:eg/screens/students/stu_dashboard.dart';
@@ -89,6 +93,21 @@ class MenuPage extends StatelessWidget {
             ElevButton(name: "Student Database", className: AdminStuDb()),
             SizedBox(height: 10,),
             ElevButton(name: "Timetable", className: AdminTT())
+          ],
+        ),
+        const SizedBox(width: 10,),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Text("Common for all:", style: TextStyle(fontSize: 20)),
+            SizedBox(height: 20,),
+            ElevButton(name: "Complaint Box", className: ComplaintPage()),
+            SizedBox(height: 10,),
+            ElevButton(name: "Notifications", className: NotificationsPage()),
+            SizedBox(height: 10,),
+            ElevButton(name: "Profile", className: ProfilePage()),
+            SizedBox(height: 10,),
+            ElevButton(name: "Settings", className: SettingsPage()),
           ],
         ),
       ],
