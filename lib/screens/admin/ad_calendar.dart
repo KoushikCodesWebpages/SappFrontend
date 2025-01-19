@@ -3,33 +3,34 @@ import 'package:http/http.dart' as http;
 import 'package:table_calendar/table_calendar.dart';
 import 'dart:convert';
 
-void main() {
-  runApp(MyApp());
-}
+// void main() {
+//   runApp(MyApp());
+// }
 
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Admin Calendar',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-        textTheme: TextTheme(
-          bodyMedium: TextStyle(color: Colors.black87), // Use bodyMedium instead of bodyText2
-        ),
-      ),
-      home: AdminCalendar(),
-    );
-  }
-}
+// class MyApp extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       title: 'Admin Calendar',
+//       theme: ThemeData(
+//         primarySwatch: Colors.blue,
+//         visualDensity: VisualDensity.adaptivePlatformDensity,
+//         textTheme: TextTheme(
+//           bodyMedium: TextStyle(color: Colors.black87), // Use bodyMedium instead of bodyText2
+//         ),
+//       ),
+//       home: AdminCalendar(),
+//     );
+//   }
+// }
 
 class AdminCalendar extends StatefulWidget {
+  const AdminCalendar({super.key});
   @override
-  _AdminCalendarState createState() => _AdminCalendarState();
+  AdminCalendarState createState() => AdminCalendarState();
 }
 
-class _AdminCalendarState extends State<AdminCalendar> {
+class AdminCalendarState extends State<AdminCalendar> {
   late DateTime _selectedDay;
   late List _selectedEvents;
   late Map<DateTime, List> _events;
@@ -44,7 +45,7 @@ class _AdminCalendarState extends State<AdminCalendar> {
   }
 
   void _fetchEvents(DateTime day) async {
-    final date = "${day.year}-${day.month.toString().padLeft(2, '0')}-${day.day.toString().padLeft(2, '0')}";
+    //final date = "${day.year}-${day.month.toString().padLeft(2, '0')}-${day.day.toString().padLeft(2, '0')}";
     final response = await http.get(Uri.parse('http://127.0.0.1:5014/calender'));
 
     if (response.statusCode == 200) {
@@ -130,7 +131,7 @@ class _AdminCalendarState extends State<AdminCalendar> {
 class EventCard extends StatelessWidget {
   final dynamic event;
 
-  EventCard({required this.event});
+  const EventCard({super.key,required this.event});
 
   @override
   Widget build(BuildContext context) {

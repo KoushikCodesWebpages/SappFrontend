@@ -6,10 +6,10 @@ class StuAttendance extends StatefulWidget {
   const StuAttendance({super.key});
 
   @override
-  _StuAttendanceState createState() => _StuAttendanceState(); // Ensure this is used only internally
+  StuAttendanceState createState() => StuAttendanceState(); // Ensure this is used only internally
 }
 
-class _StuAttendanceState extends State<StuAttendance> {
+class StuAttendanceState extends State<StuAttendance> {
   List<dynamic> attendance = [];
   List<dynamic> filteredAttendance = [];
   bool isLoading = true;

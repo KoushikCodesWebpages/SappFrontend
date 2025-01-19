@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class FacAttendance extends StatelessWidget {
-  FacAttendance({super.key});
+  const FacAttendance({super.key});
 
   // Mock Data
   final List<Map<String, dynamic>> studentData =

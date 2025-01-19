@@ -6,10 +6,10 @@ class StuTimetable extends StatefulWidget {
   const StuTimetable({super.key});
 
   @override
-  _StuTimetableState createState() => _StuTimetableState();
+  StuTimetableState createState() => StuTimetableState();
 }
 
-class _StuTimetableState extends State<StuTimetable> {
+class StuTimetableState extends State<StuTimetable> {
   Map<String, dynamic>? timetable;
   bool isLoading = true;
 
