@@ -1,31 +1,10 @@
+import 'package:eg/services/admin/admin_calendar_service.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:table_calendar/table_calendar.dart';
-import 'dart:convert';
-
-// void main() {
-//   runApp(MyApp());
-// }
-
-// class MyApp extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       title: 'Admin Calendar',
-//       theme: ThemeData(
-//         primarySwatch: Colors.blue,
-//         visualDensity: VisualDensity.adaptivePlatformDensity,
-//         textTheme: TextTheme(
-//           bodyMedium: TextStyle(color: Colors.black87), // Use bodyMedium instead of bodyText2
-//         ),
-//       ),
-//       home: AdminCalendar(),
-//     );
-//   }
-// }
 
 class AdminCalendar extends StatefulWidget {
   const AdminCalendar({super.key});
+
   @override
   AdminCalendarState createState() => AdminCalendarState();
 }
@@ -34,6 +13,7 @@ class AdminCalendarState extends State<AdminCalendar> {
   late DateTime _selectedDay;
   late List _selectedEvents;
   late Map<DateTime, List> _events;
+  final AdminCalendarService _eventService = AdminCalendarService();
 
   @override
   void initState() {
@@ -41,38 +21,23 @@ class AdminCalendarState extends State<AdminCalendar> {
     _selectedDay = DateTime.now();
     _events = {};
     _selectedEvents = [];
-    _fetchEvents(_selectedDay);  // Fetch events for the initial selected day
+    _fetchEvents(_selectedDay); // Fetch events for the initial selected day
   }
 
   void _fetchEvents(DateTime day) async {
     //final date = "${day.year}-${day.month.toString().padLeft(2, '0')}-${day.day.toString().padLeft(2, '0')}";
-    final response = await http.get(Uri.parse('http://127.0.0.1:5014/calender'));
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      setState(() {
-        _events = {}; // Clear old events
-        _selectedEvents = [];
-        // Populate events based on the date
-        for (var event in data['calendar']) {
-          DateTime eventDate = DateTime.parse(event['date']);
-          if (eventDate.year == day.year && eventDate.month == day.month && eventDate.day == day.day) {
-            _events[day] = _events[day] ?? [];
-            _events[day]?.add(event);
-          }
-        }
-        _selectedEvents = _events[day] ?? [];
-      });
-    } else {
-      print('Failed to load events');
-    }
+    final events = await _eventService.fetchEvents(day);
+    setState(() {
+      _events = events;
+      _selectedEvents = _events[day] ?? [];
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Admin Calendar'),
+        title: const Text('Admin Calendar'),
         centerTitle: true,
       ),
       body: Column(
@@ -104,16 +69,16 @@ class AdminCalendarState extends State<AdminCalendar> {
               headerStyle: HeaderStyle(
                 formatButtonVisible: false,
                 titleCentered: true,
-                leftChevronIcon: Icon(Icons.chevron_left, color: Colors.blue),
-                rightChevronIcon: Icon(Icons.chevron_right, color: Colors.blue),
+                leftChevronIcon: const Icon(Icons.chevron_left, color: Colors.blue),
+                rightChevronIcon: const Icon(Icons.chevron_right, color: Colors.blue),
               ),
             ),
           ),
-          
+
           // Display the events for the selected date
           Expanded(
             child: _selectedEvents.isEmpty
-                ? Center(child: Text('No events for this day'))
+                ? const Center(child: Text('No events for this day'))
                 : ListView.builder(
                     itemCount: _selectedEvents.length,
                     itemBuilder: (context, index) {
@@ -131,7 +96,7 @@ class AdminCalendarState extends State<AdminCalendar> {
 class EventCard extends StatelessWidget {
   final dynamic event;
 
-  const EventCard({super.key,required this.event});
+  const EventCard({super.key, required this.event});
 
   @override
   Widget build(BuildContext context) {
@@ -143,23 +108,23 @@ class EventCard extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Row(
           children: [
-            Icon(Icons.event, color: Colors.blue),
-            SizedBox(width: 12.0),
+            const Icon(Icons.event, color: Colors.blue),
+            const SizedBox(width: 12.0),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     event['event_title'],
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 18.0,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 4.0),
+                  const SizedBox(height: 4.0),
                   Text(
                     'Date: ${event['date']}',
-                    style: TextStyle(fontSize: 14.0, color: Colors.grey),
+                    style: const TextStyle(fontSize: 14.0, color: Colors.grey),
                   ),
                 ],
               ),

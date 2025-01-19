@@ -1,65 +1,80 @@
 import 'package:flutter/material.dart';
+import '../../services/students/stu_assignments_service.dart';
 
-class StuAssignments extends StatelessWidget {
-  const StuAssignments({Key? key}) : super(key: key);
+class StuAssignments extends StatefulWidget {
+  const StuAssignments({super.key});
+
+  @override
+  State<StuAssignments> createState() => _StuAssignmentsState();
+}
+
+class _StuAssignmentsState extends State<StuAssignments> {
+  late Future<List<StuAssignmentsService>> _assignments;
+
+  @override
+  void initState() {
+    super.initState();
+    _assignments = AssignmentService().fetchAssignments();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Assignments'),
-        backgroundColor: Colors.blue, // Match the color scheme with the app's theme
+        backgroundColor: Colors.blue,
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16.0),
-        children: [
-          // Example assignment previews
-          Card(
-            elevation: 4,
-            child: ListTile(
-              title: const Text('Assignment 1'),
-              subtitle: const Text('Due Date: 2025-01-20'),
-              trailing: const Icon(Icons.arrow_forward),
-              onTap: () {
-                // Navigate to the detailed assignment view
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const AssignmentDetailPage(title: 'Assignment 1')),
+      body: FutureBuilder<List<StuAssignmentsService>>(
+        future: _assignments,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('No assignments available.'));
+          } else {
+            final assignments = snapshot.data!;
+            return ListView.builder(
+              padding: const EdgeInsets.all(16.0),
+              itemCount: assignments.length,
+              itemBuilder: (context, index) {
+                final assignment = assignments[index];
+                return Card(
+                  elevation: 4,
+                  child: ListTile(
+                    title: Text(assignment.title),
+                    subtitle: Text('Due Date: ${assignment.dueDate}'),
+                    trailing: const Icon(Icons.arrow_forward),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AssignmentDetailPage(assignment: assignment),
+                        ),
+                      );
+                    },
+                  ),
                 );
               },
-            ),
-          ),
-          const SizedBox(height: 10),
-          Card(
-            elevation: 4,
-            child: ListTile(
-              title: const Text('Assignment 2'),
-              subtitle: const Text('Due Date: 2025-01-25'),
-              trailing: const Icon(Icons.arrow_forward),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const AssignmentDetailPage(title: 'Assignment 2')),
-                );
-              },
-            ),
-          ),
-        ],
+            );
+          }
+        },
       ),
     );
   }
 }
 
 class AssignmentDetailPage extends StatelessWidget {
-  final String title;
+  final StuAssignmentsService assignment;
 
-  const AssignmentDetailPage({Key? key, required this.title}) : super(key: key);
+  const AssignmentDetailPage({super.key, required this.assignment});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        title: Text(assignment.title),
         backgroundColor: Colors.blue,
       ),
       body: Padding(
@@ -68,7 +83,7 @@ class AssignmentDetailPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              title,
+              assignment.title,
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
@@ -76,18 +91,18 @@ class AssignmentDetailPage extends StatelessWidget {
               'Description:',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
             ),
-            const Text(
-              'This is the detailed description of the assignment. Include all relevant instructions and details here.',
-              style: TextStyle(fontSize: 16),
+            Text(
+              assignment.description,
+              style: const TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 20),
             const Text(
               'Submission Deadline:',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
             ),
-            const Text(
-              '2025-01-20',
-              style: TextStyle(fontSize: 16),
+            Text(
+              assignment.dueDate,
+              style: const TextStyle(fontSize: 16),
             ),
           ],
         ),
