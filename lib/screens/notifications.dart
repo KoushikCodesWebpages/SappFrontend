@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import '../services/notifications_service.dart';
+import '../models/notifications_model.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
 
   @override
-  _NotificationsPageState createState() => _NotificationsPageState();
+  NotificationsPageState createState() => NotificationsPageState();
 }
 
-class _NotificationsPageState extends State<NotificationsPage> {
-  List<dynamic> mails = [];
+class NotificationsPageState extends State<NotificationsPage> {
+  final NotificationsService _mailService = NotificationsService();
+  List<Mail> mails = [];
   bool isLoading = true;
 
   @override
@@ -20,24 +21,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
   }
 
   Future<void> fetchMails() async {
-    const String apiUrl = 'http://127.0.0.1:5007/mail';
-    try {
-      final response = await http.get(Uri.parse(apiUrl));
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        setState(() {
-          mails = data['mails'];
-          isLoading = false;
-        });
-      } else {
-        throw Exception('Failed to load mails');
-      }
-    } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
-      print('Error fetching mails: $e');
-    }
+    final fetchedMails = await _mailService.fetchMails();
+    setState(() {
+      mails = fetchedMails;
+      isLoading = false;
+    });
   }
 
   @override
@@ -61,21 +49,21 @@ class _NotificationsPageState extends State<NotificationsPage> {
                           vertical: 8,
                         ),
                         child: ListTile(
-                          title: Text(mail['subject']),
+                          title: Text(mail.subject),
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(mail['body']),
+                              Text(mail.body),
                               const SizedBox(height: 8),
                               Text(
-                                'From: ${mail['sender']}',
+                                'From: ${mail.sender}',
                                 style: const TextStyle(
                                   fontSize: 12,
                                   color: Colors.grey,
                                 ),
                               ),
                               Text(
-                                'Date: ${mail['date']}',
+                                'Date: ${mail.date}',
                                 style: const TextStyle(
                                   fontSize: 12,
                                   color: Colors.grey,
