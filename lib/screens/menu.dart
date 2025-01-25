@@ -1,4 +1,5 @@
 import 'package:eg/screens/admin/ad_calendar.dart';
+import 'package:eg/screens/admin/ad_dashboard.dart';
 import 'package:eg/screens/admin/ad_complaint.dart';
 import 'package:eg/screens/admin/ad_faculty_db.dart';
 import 'package:eg/screens/admin/ad_results.dart';
@@ -81,6 +82,8 @@ class MenuPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Text("Admin:", style: TextStyle(fontSize: 20)),
+            SizedBox(height: 20,),
+            ElevButton(name: "Admin Dashboard", className: AdminDashboard()),
             SizedBox(height: 20,),
             ElevButton(name: "Calendar", className: AdminCalendar()),
             SizedBox(height: 10,),
