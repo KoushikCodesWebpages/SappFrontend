@@ -1,133 +1,233 @@
-import 'package:eg/services/admin/admin_calendar_service.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:intl/intl.dart';
 
 class AdminCalendar extends StatefulWidget {
-  const AdminCalendar({super.key});
-
   @override
-  AdminCalendarState createState() => AdminCalendarState();
+  _AdminCalendarState createState() => _AdminCalendarState();
 }
 
-class AdminCalendarState extends State<AdminCalendar> {
-  late DateTime _selectedDay;
-  late List _selectedEvents;
-  late Map<DateTime, List> _events;
-  final AdminCalendarService _eventService = AdminCalendarService();
+class _AdminCalendarState extends State<AdminCalendar> {
+  DateTime _focusedDay = DateTime.now();
+  DateTime? _selectedDay;
+
+  // Updated events list with five school events
+  Map<DateTime, List<Map<String, dynamic>>> _events = {};
 
   @override
   void initState() {
     super.initState();
-    _selectedDay = DateTime.now();
-    _events = {};
-    _selectedEvents = [];
-    _fetchEvents(_selectedDay); // Fetch events for the initial selected day
+    _loadSampleEvents();
   }
 
-  void _fetchEvents(DateTime day) async {
-    //final date = "${day.year}-${day.month.toString().padLeft(2, '0')}-${day.day.toString().padLeft(2, '0')}";
-    final events = await _eventService.fetchEvents(day);
+  void _loadSampleEvents() {
+    _events = {
+      DateTime.utc(2025, 1, 29): [
+        {
+          'id': '1',
+          'title': 'Annual Science Fair',
+          'description': 'Students showcase their science projects.',
+          'event_type': 'event',
+          'event_date': '2025-01-29',
+          'created_by': 'Principal',
+          'created_at': '2025-01-10 10:00:00',
+          'updated_at': '2025-01-12 12:00:00',
+        },
+      ],
+      DateTime.utc(2025, 2, 15): [
+        {
+          'id': '2',
+          'title': 'Math Exam',
+          'description': 'Grade 10 Mid-Term Math Exam.',
+          'event_type': 'exam',
+          'event_date': '2025-02-15',
+          'created_by': 'Math Teacher',
+          'created_at': '2025-01-12 09:00:00',
+          'updated_at': '2025-01-13 11:00:00',
+        },
+      ],
+      DateTime.utc(2025, 2, 25): [
+        {
+          'id': '3',
+          'title': 'Parent-Teacher Meeting',
+          'description': 'Meeting to discuss student performance.',
+          'event_type': 'meeting',
+          'event_date': '2025-02-25',
+          'created_by': 'Admin',
+          'created_at': '2025-01-14 14:00:00',
+          'updated_at': '2025-01-15 16:00:00',
+        },
+      ],
+      DateTime.utc(2025, 3, 10): [
+        {
+          'id': '4',
+          'title': 'Sports Day',
+          'description': 'Annual sports event with various competitions.',
+          'event_type': 'event',
+          'event_date': '2025-03-10',
+          'created_by': 'Sports Committee',
+          'created_at': '2025-01-16 13:00:00',
+          'updated_at': '2025-01-17 15:00:00',
+        },
+      ],
+      DateTime.utc(2025, 3, 20): [
+        {
+          'id': '5',
+          'title': 'Fee Payment Deadline',
+          'description': 'Last date for submitting fees for present term.',
+          'event_type': 'fee_due',
+          'event_date': '2025-03-20',
+          'created_by': 'Finance Office',
+          'created_at': '2025-01-18 11:00:00',
+          'updated_at': '2025-01-19 14:00:00',
+        },
+      ],
+    };
+  }
+
+  List<Map<String, dynamic>> _getEventsForDay(DateTime day) {
+    return _events[DateTime.utc(day.year, day.month, day.day)] ?? [];
+  }
+
+  void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
     setState(() {
-      _events = events;
-      _selectedEvents = _events[day] ?? [];
+      _selectedDay = selectedDay;
+      _focusedDay = focusedDay;
     });
   }
 
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDay ?? DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != _selectedDay) {
+      setState(() {
+        _selectedDay = picked;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final eventsForSelectedDay =
+        _selectedDay != null ? _getEventsForDay(_selectedDay!) : [];
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Admin Calendar'),
-        centerTitle: true,
+        title: Text('Admin Calendar'),
       ),
-      body: Column(
-        children: [
-          // TableCalendar Widget
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TableCalendar(
-              firstDay: DateTime.utc(2025, 1, 1),
-              lastDay: DateTime.utc(2030, 12, 31),
-              focusedDay: _selectedDay,
-              selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-              onDaySelected: (selectedDay, focusedDay) {
-                setState(() {
-                  _selectedDay = selectedDay;
-                  _fetchEvents(selectedDay); // Fetch events when a day is selected
-                });
-              },
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                ElevatedButton(
+                  onPressed: () => _selectDate(context),
+                  child: Text(
+                    _selectedDay == null
+                        ? 'Select Date'
+                        : DateFormat('yyyy-MM-dd').format(_selectedDay!),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            TableCalendar(
+              focusedDay: _focusedDay,
+              firstDay: DateTime(2000),
+              lastDay: DateTime(2100),
               calendarStyle: CalendarStyle(
-                selectedDecoration: BoxDecoration(
-                  color: Colors.blue,
+                todayDecoration: BoxDecoration(
+                  color: Colors.blueAccent,
                   shape: BoxShape.circle,
                 ),
-                todayDecoration: BoxDecoration(
+                selectedDecoration: BoxDecoration(
                   color: Colors.orangeAccent,
                   shape: BoxShape.circle,
                 ),
+                weekendTextStyle: TextStyle(color: Colors.red),
               ),
-              headerStyle: HeaderStyle(
-                formatButtonVisible: false,
-                titleCentered: true,
-                leftChevronIcon: const Icon(Icons.chevron_left, color: Colors.blue),
-                rightChevronIcon: const Icon(Icons.chevron_right, color: Colors.blue),
-              ),
+              selectedDayPredicate: (day) => isSameDay(day, _selectedDay),
+              onDaySelected: _onDaySelected,
             ),
-          ),
-
-          // Display the events for the selected date
-          Expanded(
-            child: _selectedEvents.isEmpty
-                ? const Center(child: Text('No events for this day'))
-                : ListView.builder(
-                    itemCount: _selectedEvents.length,
-                    itemBuilder: (context, index) {
-                      final event = _selectedEvents[index];
-                      return EventCard(event: event);
-                    },
-                  ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class EventCard extends StatelessWidget {
-  final dynamic event;
-
-  const EventCard({super.key, required this.event});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-      elevation: 5.0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          children: [
-            const Icon(Icons.event, color: Colors.blue),
-            const SizedBox(width: 12.0),
+            const SizedBox(height: 20),
+            Text(
+              _selectedDay != null
+                  ? 'Events for ${DateFormat('yyyy-MM-dd').format(_selectedDay!)}'
+                  : 'Select a date to see events',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    event['event_title'],
-                    style: const TextStyle(
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.bold,
+              child: eventsForSelectedDay.isEmpty
+                  ? Center(
+                      child: Text(
+                        'No events for this date.',
+                        style: TextStyle(fontSize: 16, color: Colors.red),
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: eventsForSelectedDay.length,
+                      itemBuilder: (context, index) {
+                        final event = eventsForSelectedDay[index];
+                        return Card(
+                          margin: EdgeInsets.symmetric(vertical: 8.0),
+                          child: ListTile(
+                            title: Text(event['title'] ?? 'No Title'),
+                            subtitle: Text(event['description'] ?? 'No Description'),
+                            trailing: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  event['event_type']?.toUpperCase() ?? '',
+                                  style: TextStyle(
+                                    color: Colors.blueAccent,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Created by: ${event['created_by'] ?? 'Unknown'}',
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                              ],
+                            ),
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: Text(event['title'] ?? 'Event Details'),
+                                  content: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text('Description: ${event['description']}'),
+                                      const SizedBox(height: 8),
+                                      Text('Event Type: ${event['event_type']}'),
+                                      Text('Date: ${event['event_date']}'),
+                                      Text('Created by: ${event['created_by']}'),
+                                      Text('Created at: ${event['created_at']}'),
+                                      Text('Updated at: ${event['updated_at']}'),
+                                    ],
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: Text('Close'),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      },
                     ),
-                  ),
-                  const SizedBox(height: 4.0),
-                  Text(
-                    'Date: ${event['date']}',
-                    style: const TextStyle(fontSize: 14.0, color: Colors.grey),
-                  ),
-                ],
-              ),
             ),
           ],
         ),
