@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../models/faculty/fac_attendance_model.dart';
 
 class FacAttendance extends StatelessWidget {
   const FacAttendance({super.key});
