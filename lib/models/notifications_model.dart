@@ -1,28 +1,23 @@
 class Mail {
-  final int mailId;
   final String subject;
-  final String sender;
-  final String recipient;
-  final String date;
   final String body;
+  final String sender;
+  final String date;
 
   Mail({
-    required this.mailId,
     required this.subject,
-    required this.sender,
-    required this.recipient,
-    required this.date,
     required this.body,
+    required this.sender,
+    required this.date,
   });
 
+  // Factory method to create a Mail object from a JSON map
   factory Mail.fromJson(Map<String, dynamic> json) {
     return Mail(
-      mailId: json['mail_id'],
-      subject: json['subject'],
-      sender: json['sender'],
-      recipient: json['recipient'],
-      date: json['date'],
-      body: json['body'],
+      subject: json['subject'] as String,
+      body: json['body'] as String,
+      sender: json['sender'] as String,
+      date: json['date'] as String,
     );
   }
 }

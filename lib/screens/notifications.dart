@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import '../services/notifications_service.dart';
-import '../models/notifications_model.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import '../../models/notifications_model.dart'; // Import the Mail model
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
 
   @override
-  NotificationsPageState createState() => NotificationsPageState();
+  _NotificationsPageState createState() => _NotificationsPageState();
 }
 
-class NotificationsPageState extends State<NotificationsPage> {
-  final NotificationsService _mailService = NotificationsService();
+class _NotificationsPageState extends State<NotificationsPage> {
   List<Mail> mails = [];
   bool isLoading = true;
 
@@ -21,11 +21,24 @@ class NotificationsPageState extends State<NotificationsPage> {
   }
 
   Future<void> fetchMails() async {
-    final fetchedMails = await _mailService.fetchMails();
-    setState(() {
-      mails = fetchedMails;
-      isLoading = false;
-    });
+    const String apiUrl = 'http://127.0.0.1:5007/mail';
+    try {
+      final response = await http.get(Uri.parse(apiUrl));
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body)['mails'];
+        setState(() {
+          mails = data.map((mailJson) => Mail.fromJson(mailJson)).toList();
+          isLoading = false;
+        });
+      } else {
+        throw Exception('Failed to load mails');
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      print('Error fetching mails: $e');
+    }
   }
 
   @override
