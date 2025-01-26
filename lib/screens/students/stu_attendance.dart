@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../../models/students/stu_attendance_model.dart';
 
 class StuAttendance extends StatefulWidget {
   const StuAttendance({super.key});
 
   @override
-  StuAttendanceState createState() => StuAttendanceState(); // Ensure this is used only internally
+  StuAttendanceState createState() => StuAttendanceState();
 }
 
 class StuAttendanceState extends State<StuAttendance> {
-  List<dynamic> attendance = [];
-  List<dynamic> filteredAttendance = [];
+  List<AttendanceRecord> attendance = [];
+  List<AttendanceRecord> filteredAttendance = [];
   bool isLoading = true;
   DateTime selectedDate = DateTime.now();
 
@@ -26,8 +27,10 @@ class StuAttendanceState extends State<StuAttendance> {
       final response =
           await http.get(Uri.parse('http://127.0.0.1:5016/attendance'));
       if (response.statusCode == 200) {
+        final attendanceResponse =
+            AttendanceResponse.fromJson(json.decode(response.body));
         setState(() {
-          attendance = json.decode(response.body)['attendance'];
+          attendance = attendanceResponse.attendance;
           filteredAttendance = filterAttendanceByMonthYear(selectedDate);
           isLoading = false;
         });
@@ -41,13 +44,13 @@ class StuAttendanceState extends State<StuAttendance> {
       setState(() {
         isLoading = false;
       });
-      debugPrint('Error fetching attendance: $error'); // Replace `print` with `debugPrint`
+      debugPrint('Error fetching attendance: $error');
     }
   }
 
-  List<dynamic> filterAttendanceByMonthYear(DateTime date) {
-    return attendance.where((data) {
-      final dataDate = DateTime.parse(data['date']);
+  List<AttendanceRecord> filterAttendanceByMonthYear(DateTime date) {
+    return attendance.where((record) {
+      final dataDate = DateTime.parse(record.date);
       return dataDate.year == date.year && dataDate.month == date.month;
     }).toList();
   }
@@ -61,11 +64,11 @@ class StuAttendanceState extends State<StuAttendance> {
       builder: (BuildContext context, Widget? child) {
         return Theme(
           data: ThemeData.light().copyWith(
-            primaryColor: const Color.fromARGB(255, 98, 148, 224), // Blue color
-            colorScheme: ColorScheme.light(
-              primary: const Color.fromARGB(255, 98, 148, 224), // Blue color
-              onPrimary: Colors.white, // Text color on selected date
-              onSurface: Colors.black, // Text color on unselected dates
+            primaryColor: const Color.fromARGB(255, 98, 148, 224),
+            colorScheme: const ColorScheme.light(
+              primary: Color.fromARGB(255, 98, 148, 224),
+              onPrimary: Colors.white,
+              onSurface: Colors.black,
             ),
             buttonTheme: const ButtonThemeData(
               textTheme: ButtonTextTheme.primary,
@@ -101,7 +104,7 @@ class StuAttendanceState extends State<StuAttendance> {
                 Row(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(left: 16.0), // Add left padding
+                      padding: const EdgeInsets.only(left: 16.0),
                       child: Row(
                         children: [
                           const Icon(Icons.check_circle,
@@ -135,7 +138,7 @@ class StuAttendanceState extends State<StuAttendance> {
                               child: SingleChildScrollView(
                                 scrollDirection: Axis.horizontal,
                                 child: DataTable(
-                                  columns: [
+                                  columns: const [
                                     DataColumn(
                                         label: Text(
                                       'Date',
@@ -149,15 +152,14 @@ class StuAttendanceState extends State<StuAttendance> {
                                           fontWeight: FontWeight.bold),
                                     )),
                                   ],
-                                  rows: filteredAttendance.map((data) {
-                                    final isPresent = data['status']
-                                            .toLowerCase() ==
-                                        'present';
+                                  rows: filteredAttendance.map((record) {
+                                    final isPresent =
+                                        record.status.toLowerCase() == 'present';
                                     return DataRow(cells: [
                                       DataCell(
                                         Align(
                                           alignment: Alignment.centerLeft,
-                                          child: Text(data['date']),
+                                          child: Text(record.date),
                                         ),
                                       ),
                                       DataCell(

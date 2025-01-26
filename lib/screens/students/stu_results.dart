@@ -360,7 +360,7 @@ class _StuResultsPageState extends State<StuResults> {
                                     ],
                                   ),
                                 );
-                              }).toList(),
+                              }),
                               const Divider(),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
