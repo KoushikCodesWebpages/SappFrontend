@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
 class StuTimetable extends StatefulWidget {
@@ -16,28 +16,55 @@ class StuTimetableState extends State<StuTimetable> {
   @override
   void initState() {
     super.initState();
-    fetchTimetable();
+    loadTimetable();
   }
 
-  Future<void> fetchTimetable() async {
-    const String apiUrl =
-        "http://127.0.0.1:5008/timetable"; // Update this to match your API URL if needed
-    try {
-      final response = await http.get(Uri.parse(apiUrl));
-      if (response.statusCode == 200) {
-        setState(() {
-          timetable = json.decode(response.body)['timetable'];
-          isLoading = false;
-        });
-      } else {
-        throw Exception("Failed to load timetable");
-      }
-    } catch (e) {
+  Future<void> loadTimetable() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? storedTimetable = prefs.getString('timetable');
+
+    if (storedTimetable != null) {
       setState(() {
+        timetable = json.decode(storedTimetable);
         isLoading = false;
       });
-      print("Error fetching timetable: $e");
+    } else {
+      setState(() {
+        timetable = defaultTimetable();
+        isLoading = false;
+      });
+      saveTimetable(); // Save default timetable initially
     }
+  }
+
+  Future<void> saveTimetable() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('timetable', json.encode(timetable));
+  }
+
+  // Default timetable (like the API data)
+  Map<String, dynamic> defaultTimetable() {
+    return {
+      "Monday": ["Math", "Physics", "Chemistry"],
+      "Tuesday": ["Biology", "History", "Art"],
+      "Wednesday": ["PE", "Math", "Computer Science"],
+      "Thursday": ["English", "Geography", "Biology"],
+      "Friday": ["Chemistry", "Physics", "Math"]
+    };
+  }
+
+  // Simulating an update (you can modify this as needed)
+  void updateTimetable() {
+    setState(() {
+      timetable = {
+        "Monday": ["Updated Math", "Updated Physics", "Updated Chemistry"],
+        "Tuesday": ["New Biology", "New History", "New Art"],
+        "Wednesday": ["New PE", "New Math", "New Computer Science"],
+        "Thursday": ["New English", "New Geography", "New Biology"],
+        "Friday": ["New Chemistry", "New Physics", "New Math"]
+      };
+    });
+    saveTimetable(); // Save updated timetable
   }
 
   @override
@@ -46,6 +73,12 @@ class StuTimetableState extends State<StuTimetable> {
       home: Scaffold(
         appBar: AppBar(
           title: const Text("Student Time Table"),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: updateTimetable, // Simulating new data
+            )
+          ],
         ),
         body: isLoading
             ? const Center(child: CircularProgressIndicator())
