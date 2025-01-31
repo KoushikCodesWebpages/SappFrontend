@@ -11,12 +11,11 @@ class ElevButton extends StatefulWidget {
   });
 
   @override
-  //State<ElevButton> createState() => _ElevButtonState();
   ElevButtonState createState() => ElevButtonState();
 }
   
 class ElevButtonState extends State<ElevButton>{
-  //final String name;
+  
   @override
   Widget build(BuildContext context) {
     return  ElevatedButton(

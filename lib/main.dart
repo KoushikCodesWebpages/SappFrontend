@@ -1,6 +1,7 @@
-import 'package:eg/screens/menu.dart';
-// import 'package:eg/screens/students/mdashboard.dart';
-// import 'package:eg/screens/students/mstu_login.dart';
+//import 'package:eg/screens/menu.dart';
+// import 'package:eg/screens/students/dashboard.dart';
+// import 'package:eg/screens/students/login.dart';
+import 'package:eg/screens/students/login.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -18,8 +19,8 @@ class MainApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MenuPage(), // Set MenuPage as the home screen
+      home: LoginPage(),
+      debugShowCheckedModeBanner: false
     );
-    //return const MenuPage();
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../services/students/stu_assignments_service.dart';
+import '../../services/students/assignments_service.dart';
 
 class StuAssignments extends StatefulWidget {
   const StuAssignments({super.key});

@@ -1,28 +1,29 @@
-import 'package:eg/screens/admin/ad_calendar.dart';
-import 'package:eg/screens/admin/ad_complaint.dart';
-import 'package:eg/screens/admin/ad_faculty_db.dart';
-import 'package:eg/screens/admin/ad_results.dart';
-import 'package:eg/screens/admin/ad_student_db.dart';
-import 'package:eg/screens/admin/ad_timetable.dart';
+import 'package:eg/screens/admin/calendar.dart';
+import 'package:eg/screens/admin/complaint.dart';
+import 'package:eg/screens/admin/faculty_db.dart';
+import 'package:eg/screens/admin/results.dart';
+import 'package:eg/screens/admin/student_db.dart';
+import 'package:eg/screens/admin/timetable.dart';
 import 'package:eg/screens/complaint.dart';
-import 'package:eg/screens/faculty/fac_assignments.dart';
-import 'package:eg/screens/faculty/fac_attendance.dart';
-import 'package:eg/screens/faculty/fac_dashboard.dart';
-import 'package:eg/screens/faculty/fac_payments.dart';
-import 'package:eg/screens/faculty/fac_results.dart';
-import 'package:eg/screens/faculty/fac_subjects.dart';
+import 'package:eg/screens/faculty/assignments.dart';
+import 'package:eg/screens/faculty/attendance.dart';
+import 'package:eg/screens/faculty/dashboard.dart';
+import 'package:eg/screens/faculty/payments.dart';
+import 'package:eg/screens/faculty/results.dart';
+import 'package:eg/screens/faculty/subjects.dart';
 import 'package:eg/screens/notifications.dart';
 import 'package:eg/screens/profile.dart';
 import 'package:eg/screens/settings.dart';
-import 'package:eg/screens/students/stu_assignments.dart';
-import 'package:eg/screens/students/stu_attendance.dart';
-import 'package:eg/screens/students/stu_dashboard.dart';
-import 'package:eg/screens/students/stu_payments.dart';
-import 'package:eg/screens/students/stu_results.dart';
-import 'package:eg/screens/students/stu_subjects.dart';
-import 'package:eg/screens/students/stu_timetable.dart';
+import 'package:eg/screens/students/assignments.dart';
+import 'package:eg/screens/students/attendance.dart';
+import 'package:eg/screens/students/dashboard.dart';
+import 'package:eg/screens/students/payments.dart';
+import 'package:eg/screens/students/results.dart';
+import 'package:eg/screens/students/subjects.dart';
+import 'package:eg/screens/students/timetable.dart';
 import 'package:flutter/material.dart';
 import '../widgets/elev_button.dart';
+import '../config/mapp_config.dart';
 
 class MenuPage extends StatelessWidget {
   const MenuPage({super.key});
@@ -46,7 +47,7 @@ class MenuPage extends StatelessWidget {
             SizedBox(height: 10,),
             ElevButton(name: "Attendance", className: StuAttendance()),
             SizedBox(height: 10,),
-            ElevButton(name: "Dashboard", className: StuDashboard()),
+            ElevButton(name: "Dashboard", className: DashboardScreen()),
             SizedBox(height: 10,),
             ElevButton(name: "Payments", className: StuPayments()),
             SizedBox(height: 10,),
@@ -105,7 +106,7 @@ class MenuPage extends StatelessWidget {
             SizedBox(height: 10,),
             ElevButton(name: "Notifications", className: NotificationsPage()),
             SizedBox(height: 10,),
-            ElevButton(name: "Profile", className: ProfilePage()),
+            ElevButton(name: "Profile", className: ProfilePage(accessToken: AppConfig.accessToken)),
             SizedBox(height: 10,),
             ElevButton(name: "Settings", className: SettingsPage()),
           ],

@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../../models/students/stu_results_model.dart';
+import '../../models/students/results_model.dart';
 
 class StuResultsService {
   final String apiUrl = 'http://127.0.0.1:5010/results';

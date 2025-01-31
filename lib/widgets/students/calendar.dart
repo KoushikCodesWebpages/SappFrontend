@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class CalendarWidget extends StatelessWidget {
+  const CalendarWidget({super.key});
+  
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -11,10 +13,10 @@ class CalendarWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Calendar',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
+            // Text(
+            //   'Calendar',
+            //   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            // ),
             SizedBox(height: 8),
             TableCalendar(
               firstDay: DateTime.utc(2022, 1, 1),

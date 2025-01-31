@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../services/students/stu_results_service.dart';
-import '../../models/students/stu_results_model.dart';
+import '../../services/students/results_service.dart';
+import '../../models/students/results_model.dart';
 
 class StuResults extends StatefulWidget {
   const StuResults({super.key});

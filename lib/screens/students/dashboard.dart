@@ -1,12 +1,20 @@
+import 'package:eg/config/mapp_config.dart';
 import 'package:eg/screens/notifications.dart';
 import 'package:eg/screens/profile.dart';
 import 'package:eg/utils/constants.dart';
 import 'package:flutter/material.dart';
-import '../../widgets/students/mstu_details.dart';
-import '../../widgets/students/mstu_announcements.dart';
-import '../../widgets/students/mstu_calendar.dart';
+import '../../widgets/students/dashboard_details.dart';
+import '../../widgets/students/announcements_box.dart';
+import '../../widgets/students/calendar.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
+  const DashboardScreen({super.key});
+  @override
+  DashboardScreenState createState() => DashboardScreenState();
+}
+
+class DashboardScreenState extends State<DashboardScreen> {
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,7 +39,7 @@ class DashboardScreen extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ProfilePage(),
+                  builder: (context) => ProfilePage(accessToken: AppConfig.accessToken,),
                 ),
               );
             }
@@ -45,20 +53,15 @@ class DashboardScreen extends StatelessWidget {
           children: [
             StudentDetailsWidget(),
             SizedBox(height: 16),
+            Text(" Announcements",style: TextStyle(fontSize: 19, color: Colors.black, fontWeight: FontWeight.bold),),
+            SizedBox(height: 7,),
             AnnouncementWidget(),
             SizedBox(height: 16),
+            Text(" Calendar",style: TextStyle(fontSize: 19, color: Colors.black, fontWeight: FontWeight.bold),),
+            SizedBox(height: 7,),
             CalendarWidget(),
           ],
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: AppConstants.mainColor,
-        items: const [
-          BottomNavigationBarItem(backgroundColor: AppConstants.mainColor,icon: Icon(Icons.dashboard), label: 'Dashboard'),
-          BottomNavigationBarItem(backgroundColor: AppConstants.mainColor,icon: Icon(Icons.book), label: 'Portions'),
-          BottomNavigationBarItem(backgroundColor: AppConstants.mainColor,icon: Icon(Icons.assignment), label: 'Assignment'),
-          BottomNavigationBarItem(backgroundColor: AppConstants.mainColor,icon: Icon(Icons.school), label: 'Result'),
-        ],
       ),
     );
   }

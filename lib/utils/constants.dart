@@ -8,5 +8,6 @@ class AppConstants {
   //Students
   static TextEditingController mailController = TextEditingController();
   static TextEditingController passwordController = TextEditingController();
+  static String roleController = "student";
   
 }
