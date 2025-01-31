@@ -1,6 +1,3 @@
-//import 'package:eg/screens/menu.dart';
-// import 'package:eg/screens/students/dashboard.dart';
-// import 'package:eg/screens/students/login.dart';
 import 'package:eg/screens/students/login.dart';
 import 'package:flutter/material.dart';
 
