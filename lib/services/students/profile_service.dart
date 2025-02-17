@@ -1,17 +1,15 @@
 import 'dart:convert';
+import 'package:eg/config/mapp_config.dart';
 import 'package:http/http.dart' as http;
-import '../models/profile_model.dart';
+import '../../models/students/profile_model.dart';
 
 class ProfileService {
-  final String apiUrl;
 
-  ProfileService({required this.apiUrl});
-
-  Future<UserProfile> fetchUserProfile(String accessToken) async {
+  Future<UserProfile> fetchUserProfile() async {
     final response = await http.get(
-      Uri.parse(apiUrl),
+      Uri.parse(AppConfig.stuProfileUrl),
       headers: {
-        'Authorization': 'Bearer $accessToken',
+        'Authorization': 'Bearer ${AppConfig.accessToken}',
       },
     );
 

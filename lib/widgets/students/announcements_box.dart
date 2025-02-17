@@ -34,8 +34,13 @@ class AnnouncementWidgetState extends State<AnnouncementWidget> {
       color: AppConstants.mainColor,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
+        child: Container(
+          constraints: BoxConstraints(
+            maxWidth: 500,
+          ),
         child: announcement == null
-            ? const Center(child: CircularProgressIndicator())
+            //? const Center(child: CircularProgressIndicator())
+            ?Text("No announcements right now",style: TextStyle(fontSize: 20, color: Colors.white),)
             : Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -50,9 +55,10 @@ class AnnouncementWidgetState extends State<AnnouncementWidget> {
               ]
             ),
             SizedBox(height: 8),
+            Text("Date: ${announcement!.date}\nTimings: ${announcement!.timings}", style: TextStyle(color: Colors.white)),
             Row(
               children: [
-                Text("Date: ${announcement!.date}\nTimings: ${announcement!.timings}", style: TextStyle(color: Colors.white)),
+                SizedBox(width: 2,),
                 Spacer(),
                 TextButton(
                   onPressed: () {}, 
@@ -63,6 +69,7 @@ class AnnouncementWidgetState extends State<AnnouncementWidget> {
             SizedBox(height: 8),
           ],
         ),
+        )
       ),
     );
   }

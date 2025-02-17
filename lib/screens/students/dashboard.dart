@@ -1,6 +1,6 @@
 import 'package:eg/config/mapp_config.dart';
 import 'package:eg/screens/notifications.dart';
-import 'package:eg/screens/profile.dart';
+import 'package:eg/screens/students/profile.dart';
 import 'package:eg/utils/constants.dart';
 import 'package:flutter/material.dart';
 import '../../widgets/students/dashboard_details.dart';
@@ -59,7 +59,7 @@ class DashboardScreenState extends State<DashboardScreen> {
             SizedBox(height: 16),
             Text(" Calendar",style: TextStyle(fontSize: 19, color: Colors.black, fontWeight: FontWeight.bold),),
             SizedBox(height: 7,),
-            CalendarWidget(),
+            CalendarScreen(),
           ],
         ),
       ),

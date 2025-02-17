@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:eg/config/mapp_config.dart';
 import 'package:http/http.dart' as http;
-import '../../models/students/login_model.dart';
+import '../../models/login_model.dart';
 
 class AuthService {
 

@@ -1,3 +1,8 @@
+import 'package:eg/config/mapp_config.dart';
+import 'package:eg/screens/faculty/assignments.dart';
+import 'package:eg/screens/faculty/dashboard.dart';
+import 'package:eg/screens/faculty/results.dart';
+import 'package:eg/screens/faculty/subjects.dart';
 import 'package:flutter/material.dart';
 import 'package:eg/screens/students/assignments.dart';
 import 'package:eg/screens/students/results.dart';
@@ -14,11 +19,16 @@ class MainScreen extends StatefulWidget {
 class MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
   
-  static final List<Widget> _pages = <Widget>[
+  static final List<Widget> _pages = AppConstants.roleController=="student"? <Widget>[
     const DashboardScreen(),
-    const StuTimetable(), //Portions
+    StuTimetableScreen(accessToken:  AppConfig.accessToken), //Portions
     const StuAssignments(),
-    const StuResults(),
+    StuResults(),
+  ] : <Widget>[
+    const FacDashboard(),
+    const SubjectsPage(),
+    const FacAssignments(),
+    const FacResults()
   ];
 
   void _onItemTapped(int index) {
@@ -43,9 +53,9 @@ class MainScreenState extends State<MainScreen> {
         backgroundColor: Colors.white,
         selectedItemColor: AppConstants.mainColor,
         unselectedItemColor: AppConstants.mainColor,
-        items: const [
+        items: [
           BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
-          BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Portions'),
+          AppConstants.roleController=="student"? BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Portions') : BottomNavigationBarItem(icon: Icon(Icons.people_alt), label: 'Class Details'),
           BottomNavigationBarItem(icon: Icon(Icons.assignment), label: 'Assignment',),
           BottomNavigationBarItem(icon: Icon(Icons.school), label: 'Result'),
         ],

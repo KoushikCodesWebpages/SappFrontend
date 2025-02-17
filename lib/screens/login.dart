@@ -1,10 +1,10 @@
 import 'package:eg/screens/students/main_screen.dart';
 import 'package:flutter/material.dart';
-import '../../utils/constants.dart';
-import '../../widgets/text_display.dart';
-import '../../widgets/text_field.dart';
-import '../../services/students/login_service.dart';
-import '../../models/students/login_model.dart';
+import '../utils/constants.dart';
+import '../widgets/text_display.dart';
+import '../widgets/text_field.dart';
+import '../services/students/login_service.dart';
+import '../models/login_model.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -40,7 +40,7 @@ class LoginPageState extends State<LoginPage> {
           ),
         );
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Login Successful: ${response.accessToken}")),
+        SnackBar(content: Text("Login Successful!")),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -130,7 +130,7 @@ class LoginPageState extends State<LoginPage> {
                           onChanged: (String? newValue) {
                             setState(() => AppConstants.roleController = newValue ?? "student");
                           },
-                          items: ["student", "teacher", "admin"].map((role) => DropdownMenuItem(value: role, child: Text(role))).toList(),
+                          items: ["student", "faculty", "admin"].map((role) => DropdownMenuItem(value: role, child: Text(role))).toList(),
                         ),
                         )
                         ),

@@ -1,4 +1,4 @@
-import '../../config/mapp_config.dart';
+import '../config/mapp_config.dart';
 
 class LoginRequest {
   final String email;
@@ -18,16 +18,13 @@ class LoginRequest {
 
 class LoginResponse {
   final String accessToken;
-  final String refreshToken;
 
-  LoginResponse({required this.accessToken, required this.refreshToken});
+  LoginResponse({required this.accessToken});
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) {
     AppConfig.accessToken = json["access_token"];
-    AppConfig.refreshToken = json["refresh_token"];
     return LoginResponse(
       accessToken: json["access_token"],
-      refreshToken: json["refresh_token"],
     );
   }
 }
