@@ -3,20 +3,20 @@ import '../../models/students/submission_model.dart';
 import '../../services/students/submission_service.dart';
 import 'dart:typed_data';
 import '../../widgets/students/file_picker_widget.dart';
+import '../../utils/constants.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../widgets/pdf_viewer_page.dart';
 
 class AssignmentSubmissionPage extends StatefulWidget {
   final String assignmentId;
   final String accessToken;
 
-  AssignmentSubmissionPage({required this.assignmentId, required this.accessToken});
+  const AssignmentSubmissionPage({super.key, required this.assignmentId, required this.accessToken});
 
   @override
-  _AssignmentSubmissionPageState createState() => _AssignmentSubmissionPageState();
+  AssignmentSubmissionPageState createState() => AssignmentSubmissionPageState();
 }
 
-class _AssignmentSubmissionPageState extends State<AssignmentSubmissionPage> {
+class AssignmentSubmissionPageState extends State<AssignmentSubmissionPage> {
   Uint8List? imageBytes;
   String? imageName;
   Uint8List? documentBytes;
@@ -35,14 +35,21 @@ class _AssignmentSubmissionPageState extends State<AssignmentSubmissionPage> {
 
   Future<void> _fetchSubmission() async {
     List<dynamic> submissions = await _assignmentService.getSubmissions(widget.accessToken, widget.assignmentId);
+    var filteredSubmissions = submissions.where((submission) => submission["assignment"] == widget.assignmentId).toList();
 
-    if (submissions.isNotEmpty) {
-      var latestSubmission = submissions.last; // Assuming last is the latest
+    if (filteredSubmissions.isNotEmpty) {
+      var latestSubmission = filteredSubmissions.last; // Assuming last is the latest
 
       setState(() {
         hasSubmitted = true;
         submittedImageUrl = latestSubmission["image"];
         submittedDocumentUrl = latestSubmission["document"];
+      });
+    } else {
+      setState(() {
+        hasSubmitted = false;
+        submittedImageUrl = null;
+        submittedDocumentUrl = null;
       });
     }
   }
@@ -50,7 +57,7 @@ class _AssignmentSubmissionPageState extends State<AssignmentSubmissionPage> {
   Future<void> submitAssignment() async {
     if (imageBytes == null && documentBytes == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Please select either an image or a document.")),
+        const SnackBar(content: Text("Please select either an image or a document.")),
       );
       return;
     }
@@ -77,75 +84,124 @@ class _AssignmentSubmissionPageState extends State<AssignmentSubmissionPage> {
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(success ? "Submission Successful!" : "Submission Failed!")),
+      SnackBar(
+        content: Text(success ? "Submission Successful!" : "Submission Failed!"),
+        backgroundColor: success ? Colors.green : Colors.red,
+      ),
     );
+  }
+
+  Future<void> _openPDF() async {
+    final Uri url = Uri.parse(submittedDocumentUrl!);
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      throw 'Could not launch $submittedDocumentUrl';
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Submit Assignment")),
-      body: Padding(
+      appBar: AppBar(
+        title: const Text("Submit Assignment", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        backgroundColor: AppConstants.mainColor,
+        elevation: 0,
+      ),
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (hasSubmitted) ...[
-              Text("Already Submitted:", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              if (submittedImageUrl != null) Image.network(submittedImageUrl!),
-              if (submittedDocumentUrl != null)
-                TextButton(
-  //                 onPressed: () {
-  //   if (submittedDocumentUrl != null) {
-  //     Navigator.push(
-  //       context,
-  //       MaterialPageRoute(
-  //         builder: (context) => PDFViewerPage(pdfUrl: submittedDocumentUrl!),
-  //       ),
-  //     );
-  //   }
-  // },
-  onPressed: () {
-    if (submittedDocumentUrl != null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PDFViewerPage(pdfUrl: submittedDocumentUrl!),
-        ),
-      );
-    }
-  },
-  //                 onPressed: () async {
-  //   if (submittedDocumentUrl != null) {
-  //     final Uri url = Uri.parse(submittedDocumentUrl!);
-  //     if (await canLaunchUrl(url)) {
-  //       await launchUrl(url, mode: LaunchMode.externalApplication);
-  //     } else {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(content: Text("Could not open document.")),
-  //       );
-  //     }
-  //   }
-  // },
-                  child: Text("View Submitted Document"),
+              const Text(
+                "Already Submitted",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
+
+              if (submittedImageUrl != null)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.network(
+                    submittedImageUrl!,
+                    height: 200,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
                 ),
-              SizedBox(height: 20),
+              const SizedBox(height: 10),
+
+              if (submittedDocumentUrl != null)
+                Center(
+                  child: ElevatedButton.icon(
+                    onPressed: _openPDF,
+                    icon: const Icon(Icons.picture_as_pdf, color: Colors.white),
+                    label: const Text("View Submitted Document", style: TextStyle(color: Colors.white),),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppConstants.mainColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 20),
             ] else ...[
-              FilePickerWidget(fileType: "image", onFileSelected: (bytes, name) {
-                setState(() {
-                  imageBytes = bytes;
-                  imageName = name;
-                });
-              }),
-              FilePickerWidget(fileType: "document", onFileSelected: (bytes, name) {
-                setState(() {
-                  documentBytes = bytes;
-                  documentName = name;
-                });
-              }),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: hasSubmitted ? null : submitAssignment, // Disable if already submitted
-                child: Text("Submit"),
+              // Image Picker
+              FilePickerWidget(
+                fileType: "image",
+                onFileSelected: (bytes, name) {
+                  setState(() {
+                    imageBytes = bytes;
+                    imageName = name;
+                  });
+                },
+              ),
+              if (imageName != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    "Selected: $imageName",
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey),
+                  ),
+                ),
+              const SizedBox(height: 16),
+
+              // Document Picker
+              FilePickerWidget(
+                fileType: "document",
+                onFileSelected: (bytes, name) {
+                  setState(() {
+                    documentBytes = bytes;
+                    documentName = name;
+                  });
+                },
+              ),
+              if (documentName != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    "Selected: $documentName",
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey),
+                  ),
+                ),
+              const SizedBox(height: 20),
+
+              // Submit Button
+              Center(
+                child: ElevatedButton(
+                  onPressed: hasSubmitted ? null : submitAssignment,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: hasSubmitted ? Colors.grey : AppConstants.mainColor,
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 40),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    elevation: 5,
+                  ),
+                  child: const Text(
+                    "Submit",
+                    style: TextStyle(fontSize: 16, color: Colors.white),
+                  ),
+                ),
               ),
             ],
           ],

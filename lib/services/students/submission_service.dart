@@ -17,7 +17,10 @@ class AssignmentService {
     var request = http.MultipartRequest("POST", uri);
     request.headers['Authorization'] = "Bearer $token";
     
-    request.fields.addAll(assignmentData.map((key, value) => MapEntry(key, value.toString())));
+    //request.fields.addAll(assignmentData.map((key, value) => MapEntry(key, value.toString())));
+    request.fields["assignment"] = assignmentData["assignment"];
+  request.fields["image"] = assignmentData["image"] == "null" ? "" : assignmentData["image"];
+  request.fields["document"] = assignmentData["document"] == "null" ? "" : assignmentData["document"];
 
     if (imageBytes != null && imageName != null) {
       request.files.add(http.MultipartFile.fromBytes("image", imageBytes, filename: imageName));
@@ -32,21 +35,25 @@ class AssignmentService {
   }
 
   Future<List<dynamic>> getSubmissions(String accessToken, String assignmentId) async {
-    final url = Uri.parse(AppConfig.stuSubmissionUrl);
+  final url = Uri.parse("${AppConfig.stuSubmissionUrl}?assignment=$assignmentId"); // Filter at API level if supported
 
-    final response = await http.get(
-      url,
-      headers: {
-        "Authorization": "Bearer $accessToken",
-        "Content-Type": "application/json",
-      },
-    );
+  final response = await http.get(
+    url,
+    headers: {
+      "Authorization": "Bearer $accessToken",
+      "Content-Type": "application/json",
+    },
+  );
 
-    if (response.statusCode == 200) {
-      return json.decode(response.body);
-    } else {
-      print("Failed to fetch submissions: ${response.body}");
-      return [];
-    }
+  if (response.statusCode == 200) {
+    List<dynamic> submissions = json.decode(response.body);
+    
+    // Ensure only submissions belonging to this assignment are returned
+    return submissions.where((submission) => submission["assignment"] == assignmentId).toList();
+  } else {
+    print("Failed to fetch submissions: ${response.body}");
+    return [];
   }
+}
+
 }

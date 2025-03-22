@@ -1,10 +1,11 @@
-//import 'package:eg/screens/menu.dart';
-// import 'package:eg/screens/students/dashboard.dart';
-// import 'package:eg/screens/students/login.dart';
+import 'package:webview_flutter_web/webview_flutter_web.dart';
+import 'package:webview_flutter_platform_interface/webview_flutter_platform_interface.dart';
 import 'package:eg/screens/login.dart';
 import 'package:flutter/material.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  WebViewPlatform.instance = WebWebViewPlatform();
   runApp(const MainApp());
 }
 

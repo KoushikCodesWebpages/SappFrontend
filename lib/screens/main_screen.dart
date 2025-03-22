@@ -79,7 +79,7 @@ class MainScreenState extends State<MainScreen> {
                   ? BottomNavigationBarItem(
                       icon: Icon(Icons.book,
                           color: _selectedIndex == 1 ? AppConstants.mainColor : Colors.blueGrey),
-                      label: 'Portions',
+                      label: 'Timetable',
                     )
                   : BottomNavigationBarItem(
                       icon: Icon(Icons.people_alt,

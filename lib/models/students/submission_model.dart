@@ -37,8 +37,8 @@ class AssignmentSubmission {
   Map<String, dynamic> toJson() {
     return {
       "assignment": assignmentId,
-      "image": imageName, 
-      "document": documentName, 
+      "image": imageName ?? "null", 
+      "document": documentName ?? "null", 
     };
   }
 }

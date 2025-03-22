@@ -112,7 +112,7 @@ class StuAttendanceState extends State<StuAttendance> {
                 isLoading
                     ? const Expanded(child: Center(child: CircularProgressIndicator()))
                     : (filteredAttendance.isEmpty
-                        ? const Expanded(child: Center(child: Text('No attendance data available')))
+                        ? const Expanded(child: Center(child: Text('Attendance not updated yet')))
                         : Expanded(
                             child: SingleChildScrollView(
                               scrollDirection: Axis.vertical,
@@ -155,7 +155,7 @@ class StuAttendanceState extends State<StuAttendance> {
                 onPressed: () => pickDate(context),
                 backgroundColor: AppConstants.mainColor,
                 tooltip: 'Pick Month and Year',
-                child: const Icon(Icons.calendar_today),
+                child: const Icon(Icons.calendar_today, color: Colors.white,),
               ),
             ),
           ),
