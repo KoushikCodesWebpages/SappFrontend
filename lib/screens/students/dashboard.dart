@@ -1,6 +1,4 @@
-import 'package:eg/config/mapp_config.dart';
 import 'package:eg/screens/notifications.dart';
-import 'package:eg/screens/students/profile.dart';
 import 'package:eg/utils/constants.dart';
 import 'package:flutter/material.dart';
 import '../../widgets/students/dashboard_details.dart';
@@ -19,7 +17,7 @@ class DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Sapp', style: TextStyle(color: Colors.white)),
+        title: Text('Sapp', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         backgroundColor: AppConstants.mainColor,
         actions: [
           IconButton(
@@ -29,17 +27,6 @@ class DashboardScreenState extends State<DashboardScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => NotificationsPage(),
-                ),
-              );
-            }
-          ),
-          IconButton(
-            icon: Icon(Icons.person), 
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ProfilePage(accessToken: AppConfig.accessToken,),
                 ),
               );
             }

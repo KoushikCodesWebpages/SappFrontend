@@ -10,7 +10,7 @@ class UserProfile {
   final List<String> subjects;
   final String academicYear;
   final double attendancePercent;
-  final String studentCode;
+  final String image;
 
   UserProfile({
     required this.username,
@@ -22,7 +22,7 @@ class UserProfile {
     required this.subjects,
     required this.academicYear,
     required this.attendancePercent,
-    required this.studentCode,
+    required this.image,
   });
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
@@ -36,7 +36,8 @@ class UserProfile {
       subjects: List<String>.from(jsonDecode(json['subjects'].replaceAll("'", "\""))),
       academicYear: json['academic_year'],
       attendancePercent: json['attendance_percent'].toDouble(),
-      studentCode: json['student_code'],
+      //studentCode: json['student_code'],
+      image: json['image']??'',
     );
   }
 }

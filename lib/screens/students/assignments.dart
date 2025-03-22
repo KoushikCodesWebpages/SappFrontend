@@ -1,5 +1,14 @@
+// import 'package:eg/config/mapp_config.dart';
 // import 'package:flutter/material.dart';
+// import '../../models/students/assignments_model.dart';
 // import '../../services/students/assignments_service.dart';
+// import '../../utils/constants.dart';
+
+
+// import 'package:flutter/material.dart';
+// import 'package:photo_view/photo_view.dart';
+// import 'package:photo_view/photo_view_gallery.dart';
+// import 'package:url_launcher/url_launcher.dart';
 
 // class StuAssignments extends StatefulWidget {
 //   const StuAssignments({super.key});
@@ -9,22 +18,25 @@
 // }
 
 // class _StuAssignmentsState extends State<StuAssignments> {
-//   late Future<List<StuAssignmentsService>> _assignments;
+//   late Future<List<Assignment>> _assignments;
+//   final AssignmentService _service = AssignmentService(
+//     accessToken: AppConfig.accessToken,
+//   );
 
 //   @override
 //   void initState() {
 //     super.initState();
-//     _assignments = AssignmentService().fetchAssignments();
+//     _assignments = _service.fetchAssignments();
 //   }
 
 //   @override
 //   Widget build(BuildContext context) {
 //     return Scaffold(
 //       appBar: AppBar(
-//         title: const Text('Assignments'),
-//         backgroundColor: Colors.blue,
+//         title: const Text('Assignments', style: TextStyle(color: Colors.white),),
+//         backgroundColor: AppConstants.mainColor,
 //       ),
-//       body: FutureBuilder<List<StuAssignmentsService>>(
+//       body: FutureBuilder<List<Assignment>>(
 //         future: _assignments,
 //         builder: (context, snapshot) {
 //           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -40,22 +52,33 @@
 //               itemCount: assignments.length,
 //               itemBuilder: (context, index) {
 //                 final assignment = assignments[index];
-//                 return Card(
-//                   elevation: 4,
-//                   child: ListTile(
-//                     title: Text(assignment.title),
-//                     subtitle: Text('Due Date: ${assignment.dueDate}'),
-//                     trailing: const Icon(Icons.arrow_forward),
-//                     onTap: () {
-//                       Navigator.push(
-//                         context,
-//                         MaterialPageRoute(
-//                           builder: (context) => AssignmentDetailPage(assignment: assignment),
-//                         ),
-//                       );
-//                     },
-//                   ),
-//                 );
+//                 String date = assignment.dueDate.split('T')[0];
+//                 String time = assignment.dueDate.split('T')[1];
+//                 time = time.substring(0, time.length - 1);
+
+//                 DateTime dueDateTime = DateTime.parse(assignment.dueDate);
+// bool isOverdue = dueDateTime.isBefore(DateTime.now());
+
+// return Card(
+//   elevation: 4,
+//   child: ListTile(
+//     title: Text(assignment.title),
+//     subtitle: Text(
+//       'Due Date: $date $time',
+//       style: TextStyle(color: isOverdue ? Colors.red : Colors.black),
+//     ),
+//     trailing: const Icon(Icons.arrow_forward),
+//     onTap: () {
+//       Navigator.push(
+//         context,
+//         MaterialPageRoute(
+//           builder: (context) => AssignmentDetailPage(assignment: assignment),
+//         ),
+//       );
+//     },
+//   ),
+// );
+
 //               },
 //             );
 //           }
@@ -66,16 +89,25 @@
 // }
 
 // class AssignmentDetailPage extends StatelessWidget {
-//   final StuAssignmentsService assignment;
+//   final Assignment assignment;
 
 //   const AssignmentDetailPage({super.key, required this.assignment});
 
+  
+
 //   @override
 //   Widget build(BuildContext context) {
+//     String date = assignment.dueDate.split('T')[0];
+//     String time = assignment.dueDate.split('T')[1];
+//     time = time.substring(0, time.length - 1);
+
+//     DateTime dueDateTime = DateTime.parse(assignment.dueDate);
+//     bool isOverdue = dueDateTime.isBefore(DateTime.now());
+
 //     return Scaffold(
 //       appBar: AppBar(
 //         title: Text(assignment.title),
-//         backgroundColor: Colors.blue,
+//         backgroundColor: AppConstants.mainColor,
 //       ),
 //       body: Padding(
 //         padding: const EdgeInsets.all(16.0),
@@ -87,24 +119,99 @@
 //               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
 //             ),
 //             const SizedBox(height: 10),
-//             const Text(
-//               'Description:',
-//               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-//             ),
+//             Text('Subject: ${assignment.subject}'),
+//             Text('Marks: ${assignment.mark}'),
 //             Text(
-//               assignment.description,
-//               style: const TextStyle(fontSize: 16),
+//               'Due Date: $date $time',
+//               style: TextStyle(
+//                 fontSize: 16,
+//                 color: isOverdue ? Colors.red : Colors.black,
+//                 fontWeight: FontWeight.bold,
+//               ),
 //             ),
 //             const SizedBox(height: 20),
-//             const Text(
-//               'Submission Deadline:',
-//               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-//             ),
-//             Text(
-//               assignment.dueDate,
-//               style: const TextStyle(fontSize: 16),
+
+//             // Display image if available
+//             if (assignment.image != null)
+//               GestureDetector(
+//                 onTap: () => _openFullScreenImage(context, assignment.image!),
+//                 child: ClipRRect(
+//                   borderRadius: BorderRadius.circular(10),
+//                   child: Image.network(
+//                     assignment.image!,
+//                     height: 200,
+//                     fit: BoxFit.cover,
+//                   ),
+//                 ),
+//               ),
+//             const SizedBox(height: 10),
+
+//             // Open document button if available
+//             if (assignment.document != null)
+//               ElevatedButton.icon(
+//                 onPressed: () => _openDocument(assignment.document!),
+//                 style: ElevatedButton.styleFrom(
+//                   backgroundColor: AppConstants.mainColor,
+//                 ),
+//                 icon: const Icon(Icons.picture_as_pdf, color: Colors.white),
+//                 label: const Text(
+//                   'Open Document',
+//                   style: TextStyle(color: Colors.white),
+//                 ),
+//               ),
+//             const SizedBox(height: 10),
+
+//             ElevatedButton(
+//               onPressed: () {},
+//               style: ElevatedButton.styleFrom(
+//                 backgroundColor: AppConstants.mainColor,
+//                 elevation: 5,
+//               ),
+//               child: const Text(
+//                 'Upload assignment',
+//                 style: TextStyle(fontSize: 16, color: Colors.white),
+//               ),
 //             ),
 //           ],
+//         ),
+//       ),
+//     );
+//   }
+
+//   void _openFullScreenImage(BuildContext context, String imageUrl) {
+//     Navigator.push(
+//       context,
+//       MaterialPageRoute(
+//         builder: (context) => FullScreenImage(imageUrl: imageUrl),
+//       ),
+//     );
+//   }
+
+//   void _openDocument(String documentUrl) async {
+//     if (await canLaunchUrl(Uri.parse(documentUrl))) {
+//       await launchUrl(Uri.parse(documentUrl), mode: LaunchMode.externalApplication);
+//     } else {
+//       debugPrint("Could not open document.");
+//     }
+//   }
+// }
+
+// class FullScreenImage extends StatelessWidget {
+//   final String imageUrl;
+
+//   const FullScreenImage({super.key, required this.imageUrl});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       backgroundColor: Colors.black,
+//       appBar: AppBar(
+//         backgroundColor: Colors.black,
+//       ),
+//       body: Center(
+//         child: PhotoView(
+//           imageProvider: NetworkImage(imageUrl),
+//           backgroundDecoration: const BoxDecoration(color: Colors.black),
 //         ),
 //       ),
 //     );
@@ -112,8 +219,15 @@
 // }
 
 
-import 'package:eg/utils/constants.dart';
+import 'package:eg/config/mapp_config.dart';
+import 'package:eg/screens/students/submission.dart';
 import 'package:flutter/material.dart';
+import '../../models/students/assignments_model.dart';
+import '../../services/students/assignments_service.dart';
+import '../../utils/constants.dart';
+
+import 'package:photo_view/photo_view.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class StuAssignments extends StatefulWidget {
   const StuAssignments({super.key});
@@ -124,40 +238,21 @@ class StuAssignments extends StatefulWidget {
 
 class _StuAssignmentsState extends State<StuAssignments> {
   late Future<List<Assignment>> _assignments;
+  final AssignmentService _service = AssignmentService(
+    accessToken: AppConfig.accessToken,
+  );
 
   @override
   void initState() {
     super.initState();
-    _assignments = fetchSimulatedAssignments();
-  }
-
-  Future<List<Assignment>> fetchSimulatedAssignments() async {
-    return Future.delayed(const Duration(seconds: 1), () {
-      return [
-        Assignment(
-          title: "Math Homework",
-          description: "Solve 10 algebra problems from chapter 3.",
-          dueDate: "2025-02-10",
-        ),
-        Assignment(
-          title: "Science Project",
-          description: "Prepare a model on renewable energy sources.",
-          dueDate: "2025-02-15",
-        ),
-        Assignment(
-          title: "History Assignment",
-          description: "Write an essay on the Industrial Revolution.",
-          dueDate: "2025-02-12",
-        ),
-      ];
-    });
+    _assignments = _service.fetchAssignments();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Assignments'),
+        title: const Text('Assignments', style: TextStyle(color: Colors.white)),
         backgroundColor: AppConstants.mainColor,
       ),
       body: FutureBuilder<List<Assignment>>(
@@ -176,21 +271,89 @@ class _StuAssignmentsState extends State<StuAssignments> {
               itemCount: assignments.length,
               itemBuilder: (context, index) {
                 final assignment = assignments[index];
+                String date = assignment.dueDate.split('T')[0];
+                String time = assignment.dueDate.split('T')[1].split('.')[0];
+
+                DateTime dueDateTime = DateTime.parse(assignment.dueDate);
+                bool isOverdue = dueDateTime.isBefore(DateTime.now());
+
                 return Card(
                   elevation: 4,
-                  child: ListTile(
-                    title: Text(assignment.title),
-                    subtitle: Text('Due Date: ${assignment.dueDate}'),
-                    trailing: const Icon(Icons.arrow_forward),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              AssignmentDetailPage(assignment: assignment),
+                  margin: const EdgeInsets.only(bottom: 16),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          assignment.title,
+                          style: const TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
                         ),
-                      );
-                    },
+                        const SizedBox(height: 5),
+                        Text('Subject: ${assignment.subject}'),
+                        Text('Marks: ${assignment.mark}'),
+                        Text(
+                          'Due Date: $date $time',
+                          style: TextStyle(
+                            color: isOverdue ? Colors.red : Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+
+                        // Display image if available
+                        if (assignment.image != null)
+                          GestureDetector(
+                            onTap: () => _openFullScreenImage(
+                                context, assignment.image!),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Image.network(
+                                assignment.image!,
+                                height: 200,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                        const SizedBox(height: 10),
+
+                        // Open document button if available
+                        if (assignment.document != null)
+                          ElevatedButton.icon(
+                            onPressed: () => _openDocument(assignment.document!),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppConstants.mainColor,
+                            ),
+                            icon: const Icon(Icons.picture_as_pdf,
+                                color: Colors.white),
+                            label: const Text(
+                              'Open Document',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        const SizedBox(height: 10),
+
+                        ElevatedButton(
+                          onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AssignmentSubmissionPage(assignmentId: assignment.id, accessToken: AppConfig.accessToken,),
+                          ),
+                        );
+                      },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppConstants.mainColor,
+                            elevation: 5,
+                          ),
+                          child: const Text(
+                            'Upload assignment',
+                            style: TextStyle(fontSize: 16, color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },
@@ -200,56 +363,42 @@ class _StuAssignmentsState extends State<StuAssignments> {
       ),
     );
   }
+
+  void _openFullScreenImage(BuildContext context, String imageUrl) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => FullScreenImage(imageUrl: imageUrl),
+      ),
+    );
+  }
+
+  void _openDocument(String documentUrl) async {
+    if (await canLaunchUrl(Uri.parse(documentUrl))) {
+      await launchUrl(Uri.parse(documentUrl),
+          mode: LaunchMode.externalApplication);
+    } else {
+      debugPrint("Could not open document.");
+    }
+  }
 }
 
-class Assignment {
-  final String title;
-  final String description;
-  final String dueDate;
+class FullScreenImage extends StatelessWidget {
+  final String imageUrl;
 
-  Assignment({required this.title, required this.description, required this.dueDate});
-}
-
-class AssignmentDetailPage extends StatelessWidget {
-  final Assignment assignment;
-
-  const AssignmentDetailPage({super.key, required this.assignment});
+  const FullScreenImage({super.key, required this.imageUrl});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text(assignment.title),
-        backgroundColor: AppConstants.mainColor,
+        backgroundColor: Colors.black,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              assignment.title,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              'Description:',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-            ),
-            Text(
-              assignment.description,
-              style: const TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Submission Deadline:',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-            ),
-            Text(
-              assignment.dueDate,
-              style: const TextStyle(fontSize: 16),
-            ),
-          ],
+      body: Center(
+        child: PhotoView(
+          imageProvider: NetworkImage(imageUrl),
+          backgroundDecoration: const BoxDecoration(color: Colors.black),
         ),
       ),
     );

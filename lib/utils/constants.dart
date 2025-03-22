@@ -1,3 +1,4 @@
+import 'package:eg/widgets/faculty/dashboard_details.dart';
 import 'package:flutter/material.dart';
 
 class AppConstants {
@@ -9,5 +10,11 @@ class AppConstants {
   static TextEditingController mailController = TextEditingController();
   static TextEditingController passwordController = TextEditingController();
   static String roleController = "student";
+
+  //Profile data
+  static String name = '';
+  static String standard = '';
+  static String section = '';
+  static String academicYear = '';
   
 }

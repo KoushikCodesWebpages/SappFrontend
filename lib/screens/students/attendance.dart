@@ -1,17 +1,19 @@
+import 'package:eg/utils/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import '../../models/students/attendance_model.dart';
+import '../../services/students/attendance_service.dart';
 
 class StuAttendance extends StatefulWidget {
   const StuAttendance({super.key});
 
   @override
-  StuAttendanceState createState() => StuAttendanceState(); // Ensure this is used only internally
+  StuAttendanceState createState() => StuAttendanceState();
 }
 
 class StuAttendanceState extends State<StuAttendance> {
-  List<dynamic> attendance = [];
-  List<dynamic> filteredAttendance = [];
+  final AttendanceService _attendanceService = AttendanceService();
+  List<Attendance> attendance = [];
+  List<Attendance> filteredAttendance = [];
   bool isLoading = true;
   DateTime selectedDate = DateTime.now();
 
@@ -23,32 +25,21 @@ class StuAttendanceState extends State<StuAttendance> {
 
   Future<void> fetchAttendance() async {
     try {
-      final response =
-          await http.get(Uri.parse('http://127.0.0.1:5016/attendance'));
-      if (response.statusCode == 200) {
-        setState(() {
-          attendance = json.decode(response.body)['attendance'];
-          filteredAttendance = filterAttendanceByMonthYear(selectedDate);
-          isLoading = false;
-        });
-      } else {
-        setState(() {
-          isLoading = false;
-        });
-        throw Exception('Failed to load attendance');
-      }
-    } catch (error) {
+      List<Attendance> data = await _attendanceService.fetchAttendance();
       setState(() {
+        attendance = data;
+        filteredAttendance = filterAttendanceByMonthYear(selectedDate);
         isLoading = false;
       });
-      debugPrint('Error fetching attendance: $error'); // Replace `print` with `debugPrint`
+    } catch (error) {
+      setState(() => isLoading = false);
+      debugPrint('Error fetching attendance: $error');
     }
   }
 
-  List<dynamic> filterAttendanceByMonthYear(DateTime date) {
+  List<Attendance> filterAttendanceByMonthYear(DateTime date) {
     return attendance.where((data) {
-      final dataDate = DateTime.parse(data['date']);
-      return dataDate.year == date.year && dataDate.month == date.month;
+      return data.date.year == date.year && data.date.month == date.month;
     }).toList();
   }
 
@@ -58,17 +49,14 @@ class StuAttendanceState extends State<StuAttendance> {
       initialDate: selectedDate,
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
-      builder: (BuildContext context, Widget? child) {
+      builder: (context, child) {
         return Theme(
           data: ThemeData.light().copyWith(
-            primaryColor: const Color.fromARGB(255, 98, 148, 224), // Blue color
+            primaryColor: AppConstants.mainColor,
             colorScheme: ColorScheme.light(
-              primary: const Color.fromARGB(255, 98, 148, 224), // Blue color
-              onPrimary: Colors.white, // Text color on selected date
-              onSurface: Colors.black, // Text color on unselected dates
-            ),
-            buttonTheme: const ButtonThemeData(
-              textTheme: ButtonTextTheme.primary,
+              primary: AppConstants.mainColor,
+              onPrimary: Colors.white,
+              onSurface: Colors.black,
             ),
           ),
           child: child!,
@@ -88,8 +76,8 @@ class StuAttendanceState extends State<StuAttendance> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Student Attendance'),
-        backgroundColor: const Color.fromARGB(255, 98, 148, 224),
+        title: const Text('Attendance', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
+        backgroundColor: AppConstants.mainColor,
       ),
       body: Stack(
         children: [
@@ -101,11 +89,10 @@ class StuAttendanceState extends State<StuAttendance> {
                 Row(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(left: 16.0), // Add left padding
+                      padding: const EdgeInsets.only(left: 16.0),
                       child: Row(
                         children: [
-                          const Icon(Icons.check_circle,
-                              color: Colors.green, size: 20),
+                          const Icon(Icons.check_circle, color: Colors.green, size: 20),
                           const SizedBox(width: 5),
                           const Text('Present'),
                         ],
@@ -123,12 +110,9 @@ class StuAttendanceState extends State<StuAttendance> {
                 ),
                 const SizedBox(height: 10),
                 isLoading
-                    ? const Expanded(
-                        child: Center(child: CircularProgressIndicator()))
+                    ? const Expanded(child: Center(child: CircularProgressIndicator()))
                     : (filteredAttendance.isEmpty
-                        ? const Expanded(
-                            child: Center(
-                                child: Text('No attendance data available')))
+                        ? const Expanded(child: Center(child: Text('No attendance data available')))
                         : Expanded(
                             child: SingleChildScrollView(
                               scrollDirection: Axis.vertical,
@@ -137,41 +121,21 @@ class StuAttendanceState extends State<StuAttendance> {
                                 child: DataTable(
                                   columns: [
                                     DataColumn(
-                                        label: Text(
-                                      'Date',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                    )),
+                                      label: Text('Date', style: TextStyle(fontWeight: FontWeight.bold)),
+                                    ),
                                     DataColumn(
-                                        label: Text(
-                                      'Status',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                    )),
+                                      label: Text('Status', style: TextStyle(fontWeight: FontWeight.bold)),
+                                    ),
                                   ],
                                   rows: filteredAttendance.map((data) {
-                                    final isPresent = data['status']
-                                            .toLowerCase() ==
-                                        'present';
+                                    final isPresent = data.status.toLowerCase() == 'present';
                                     return DataRow(cells: [
+                                      DataCell(Text(data.date.toIso8601String().split('T')[0])),
                                       DataCell(
-                                        Align(
-                                          alignment: Alignment.centerLeft,
-                                          child: Text(data['date']),
-                                        ),
-                                      ),
-                                      DataCell(
-                                        Align(
-                                          alignment: Alignment.centerLeft,
-                                          child: Icon(
-                                            isPresent
-                                                ? Icons.check_circle
-                                                : Icons.cancel,
-                                            color: isPresent
-                                                ? Colors.green
-                                                : Colors.red,
-                                            size: 24,
-                                          ),
+                                        Icon(
+                                          isPresent ? Icons.check_circle : Icons.cancel,
+                                          color: isPresent ? Colors.green : Colors.red,
+                                          size: 24,
                                         ),
                                       ),
                                     ]);
@@ -189,7 +153,7 @@ class StuAttendanceState extends State<StuAttendance> {
               padding: const EdgeInsets.all(16.0),
               child: FloatingActionButton(
                 onPressed: () => pickDate(context),
-                backgroundColor: const Color.fromARGB(255, 98, 148, 224),
+                backgroundColor: AppConstants.mainColor,
                 tooltip: 'Pick Month and Year',
                 child: const Icon(Icons.calendar_today),
               ),

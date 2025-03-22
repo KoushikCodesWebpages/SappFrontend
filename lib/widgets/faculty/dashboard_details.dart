@@ -1,4 +1,6 @@
+import 'package:eg/config/mapp_config.dart';
 import 'package:eg/screens/faculty/class_details.dart';
+import 'package:eg/utils/constants.dart';
 import 'package:flutter/material.dart';
 import '../../models/faculty/dashboard_details_model.dart';
 import '../../services/faculty/dashboard_service.dart';
@@ -36,12 +38,16 @@ class FacultyCardState extends State<FacultyCard> {
           String classDetails = faculty.classTeacher[0];
           String section = faculty.classTeacher[1];
           String year = faculty.classTeacher[2];
+          AppConstants.name = faculty.username;
+          AppConstants.academicYear = year;
+          AppConstants.standard = classDetails;
+          AppConstants.section = section;
 
           return GestureDetector(
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ClassDetailsPage())//FacAttendance()), 
+                MaterialPageRoute(builder: (context) => ClassDetailsPage(accessToken: AppConfig.accessToken,))//FacAttendance()), 
               );
             },
             child: SizedBox(

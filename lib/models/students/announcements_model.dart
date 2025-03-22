@@ -11,7 +11,7 @@ class Announcement {
     required this.timings,
   });
 
-  // Factory method to create an object from JSON
+  //Factory method to create an object from JSON
   factory Announcement.fromJson(Map<String, dynamic> json) {
     return Announcement(
       id: json['id'],
@@ -20,4 +20,13 @@ class Announcement {
       timings: json['timings'],
     );
   }
+
+  // factory Announcement.fromJson(List<dynamic> json) {
+  //   return Announcement(
+  //     id: json['id'],
+  //     title: json['title'],
+  //     date: json['date'],
+  //     timings: json['timings'],
+  //   );
+  // }
 }

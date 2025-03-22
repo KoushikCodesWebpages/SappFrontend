@@ -12,6 +12,18 @@ dependencies:
   http: ^1.2.2 
   table_calendar: ^3.0.7
   shared_preferences: ^2.0.0 
+  open_filex: ^4.4.0  
+  # File picker to allow users to pick and open documents
+  file_picker: ^8.0.0
+  # Package to display images from URLs or local storage
+  cached_network_image: ^3.3.1
+  # Image viewer for full-screen display
+  photo_view: ^0.14.0
+  url_launcher: ^6.2.5
+  image_picker: ^1.0.4
+  mime: ^1.0.0
+  flutter_pdfview: ^1.2.7
+  syncfusion_flutter_pdfviewer: ^24.1.41
 
 dev_dependencies:
   flutter_test:

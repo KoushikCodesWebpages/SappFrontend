@@ -7,6 +7,8 @@ class TextInputBox extends StatefulWidget {
   final Color iconColor;
   final IconData? sufIcon;
   final IconData? preIcon;
+  final bool labelActivity;
+  final double radius;
 
   const TextInputBox({
     super.key,
@@ -15,6 +17,8 @@ class TextInputBox extends StatefulWidget {
     this.iconColor = AppConstants.mainColor,
     this.sufIcon,
     this.preIcon,
+    this.labelActivity = true,
+    this.radius = 11.0,
   });
 
   @override
@@ -30,7 +34,7 @@ class TextInputBoxState extends State<TextInputBox> {
       controller: widget.control,
       obscureText: widget.sufIcon != null && !isPasswordVisible, 
       decoration: InputDecoration(
-        floatingLabelBehavior: FloatingLabelBehavior.never,
+        floatingLabelBehavior: widget.labelActivity==false? FloatingLabelBehavior.never: FloatingLabelBehavior.auto,
         labelText: widget.label,
         prefixIcon: widget.preIcon != null
             ? Icon(
@@ -52,7 +56,7 @@ class TextInputBoxState extends State<TextInputBox> {
               )
             : null,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(11.0),
+          borderRadius: BorderRadius.circular(widget.radius),
         ),
       ),
     );

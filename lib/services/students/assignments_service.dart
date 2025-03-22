@@ -1,41 +1,29 @@
 import 'dart:convert';
+import 'package:eg/config/mapp_config.dart';
 import 'package:http/http.dart' as http;
-
-class StuAssignmentsService {
-  final int id;
-  final String title;
-  final String dueDate;
-  final String description;
-
-  StuAssignmentsService({
-    required this.id,
-    required this.title,
-    required this.dueDate,
-    required this.description,
-  });
-
-  factory StuAssignmentsService.fromJson(Map<String, dynamic> json) {
-    return StuAssignmentsService(
-      id: json['assignment_id'],
-      title: json['title'],
-      dueDate: json['due_date'],
-      description: json['description'],
-    );
-  }
-}
+import '../../models/students/assignments_model.dart';
 
 class AssignmentService {
-  static const String _baseUrl = 'http://127.0.0.1:5011';
+  final String accessToken;
 
-  Future<List<StuAssignmentsService>> fetchAssignments() async {
-    final response = await http.get(Uri.parse('$_baseUrl/assignment'));
+  AssignmentService({required this.accessToken});
+
+  Future<List<Assignment>> fetchAssignments() async {
+    final response = await http.get(
+      Uri.parse(AppConfig.stuAssignmentsUrl),
+      headers: {
+        'Authorization': 'Bearer $accessToken',
+        'Content-Type': 'application/json',
+      },
+    );
 
     if (response.statusCode == 200) {
-      final Map<String, dynamic> json = jsonDecode(response.body);
-      final List<dynamic> data = json['assignments'];
-      return data.map((json) => StuAssignmentsService.fromJson(json)).toList();
+      print(response.body);
+      List<dynamic> data = jsonDecode(response.body);
+      return data.map((item) => Assignment.fromJson(item)).toList();
     } else {
       throw Exception('Failed to load assignments');
     }
   }
+
 }

@@ -1,6 +1,6 @@
 import 'package:eg/config/mapp_config.dart';
 import 'package:eg/screens/notifications.dart';
-import 'package:eg/screens/students/profile.dart';
+import 'package:eg/screens/faculty/profile.dart';
 import 'package:eg/utils/constants.dart';
 import 'package:flutter/material.dart';
 import '../../widgets/faculty/dashboard_details.dart';

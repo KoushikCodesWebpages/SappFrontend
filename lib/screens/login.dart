@@ -1,4 +1,4 @@
-import 'package:eg/screens/students/main_screen.dart';
+import 'package:eg/screens/main_screen.dart';
 import 'package:flutter/material.dart';
 import '../utils/constants.dart';
 import '../widgets/text_display.dart';
@@ -94,14 +94,14 @@ class LoginPageState extends State<LoginPage> {
                         child: TextDisplay(text: 'E-mail', fontSize: 17,),
                       ),
                       const SizedBox(height: 5),
-                      TextInputBox(control: AppConstants.mailController, label: 'Enter your E-mail', preIcon: Icons.email,),
+                      TextInputBox(control: AppConstants.mailController, label: 'Enter your E-mail', preIcon: Icons.email, labelActivity: false,),
                       const SizedBox(height: 16),
                       const Align(
                         alignment: Alignment.centerLeft,
                         child: TextDisplay(text: 'Password', fontSize: 17,),
                       ),
                       const SizedBox(height: 5),
-                      TextInputBox(control: AppConstants.passwordController, label: 'Enter your Password', preIcon: Icons.lock,sufIcon: Icons.visibility,),
+                      TextInputBox(control: AppConstants.passwordController, label: 'Enter your Password', preIcon: Icons.lock,sufIcon: Icons.visibility, labelActivity: false,),
                       const SizedBox(height: 16),
                       const Align(
                         alignment: Alignment.centerLeft,
@@ -130,7 +130,7 @@ class LoginPageState extends State<LoginPage> {
                           onChanged: (String? newValue) {
                             setState(() => AppConstants.roleController = newValue ?? "student");
                           },
-                          items: ["student", "faculty", "admin"].map((role) => DropdownMenuItem(value: role, child: Text(role))).toList(),
+                          items: ["student", "faculty"].map((role) => DropdownMenuItem(value: role, child: Text(role))).toList(),
                         ),
                         )
                         ),
