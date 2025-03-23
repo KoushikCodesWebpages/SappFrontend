@@ -69,7 +69,7 @@ class LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 20),
               Container(
-                height: 500,
+                height: 430,
                 width: 350,
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -142,7 +142,7 @@ class LoginPageState extends State<LoginPage> {
                           elevation: WidgetStateProperty.all(5)
                         ),
                         
-                        child: Text('Login', style: TextStyle(fontSize: 16, color: const Color.fromARGB(200, 255, 255, 255)),),
+                        child: Text('Login', style: TextStyle(fontSize: 16, color: Colors.white),),
                       ),
                       const SizedBox(height: 16),
                     ],

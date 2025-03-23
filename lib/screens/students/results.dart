@@ -319,7 +319,7 @@ class ResultTable extends StatelessWidget {
               cells: [
                 DataCell(Text(result.subject, style: TextStyle(fontWeight: FontWeight.w500))),
                 DataCell(Center(child: Text(result.totalMarks.toString(), style: TextStyle(color: Colors.blueAccent)))),
-                DataCell(Center(child: Text(result.obtainedMarks.toString(), style: TextStyle(color: Colors.green)))),
+                DataCell(Center(child: Text(result.obtainedMarks.toString(), style: TextStyle(color: result.obtainedMarks>=35? Colors.green:Colors.red)))),
                 DataCell(Center(child: Text("${result.percentage}%", style: TextStyle(fontWeight: FontWeight.bold)))),
               ],
             );

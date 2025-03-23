@@ -1,4 +1,5 @@
 import 'dart:io' if (dart.library.html) 'dart:html' as html;
+import 'package:eg/utils/constants.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'dart:typed_data';
@@ -38,7 +39,7 @@ class _FilePickerWidgetState extends State<FilePickerWidget> {
       children: [
         ElevatedButton(
           onPressed: pickFile,
-          child: Text("Pick ${widget.fileType}"),
+          child: Text("Pick ${widget.fileType}", style: TextStyle(color: AppConstants.mainColor),),
         ),
         if (fileName != null) Text("Selected: $fileName"),
       ],

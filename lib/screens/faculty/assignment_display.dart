@@ -30,9 +30,11 @@ class _FacAssignmentsDisplayState extends State<FacAssignmentsDisplay> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppConstants.mainColor.withOpacity(0.1),
       appBar: AppBar(
-        title: const Text('Assignments', style: TextStyle(color: Colors.white)),
+        title: const Text('Assignments', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         backgroundColor: AppConstants.mainColor,
+        elevation: 3,
       ),
       body: FutureBuilder<List<Assignment>>(
         future: _assignments,
@@ -40,105 +42,162 @@ class _FacAssignmentsDisplayState extends State<FacAssignmentsDisplay> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(
+              child: Text(
+                'Error: ${snapshot.error}',
+                style: const TextStyle(color: Colors.red, fontSize: 16),
+              ),
+            );
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No assignments available.'));
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Center(
+                  child: Text(
+                    'No assignments available.',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                _uploadAssignmentButton(context),
+              ],
+            );
           } else {
             final assignments = snapshot.data!;
-            return ListView.builder(
-              padding: const EdgeInsets.all(16.0),
-              itemCount: assignments.length,
-              itemBuilder: (context, index) {
-                final assignment = assignments[index];
-                String date = assignment.dueDate.split('T')[0];
-                String time = assignment.dueDate.split('T')[1].split('.')[0];
+            return Column(
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(16.0),
+                    itemCount: assignments.length,
+                    itemBuilder: (context, index) {
+                      final assignment = assignments[index];
+                      String date = assignment.dueDate.split('T')[0];
+                      String time = assignment.dueDate.split('T')[1].split('.')[0];
 
-                DateTime dueDateTime = DateTime.parse(assignment.dueDate);
-                bool isOverdue = dueDateTime.isBefore(DateTime.now());
+                      DateTime dueDateTime = DateTime.parse(assignment.dueDate);
+                      bool isOverdue = dueDateTime.isBefore(DateTime.now());
 
-                return Card(
-                  elevation: 4,
-                  margin: const EdgeInsets.only(bottom: 16),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          assignment.title,
-                          style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
+                      return Card(
+                        elevation: 5,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
                         ),
-                        const SizedBox(height: 5),
-                        Text('Subject: ${assignment.subject}'),
-                        Text('Marks: ${assignment.mark}'),
-                        Text(
-                          'Due Date: $date $time',
-                          style: TextStyle(
-                            color: isOverdue ? Colors.red : Colors.black,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-
-                        // Display image if available
-                        if (assignment.image != null)
-                          GestureDetector(
-                            onTap: () => _openFullScreenImage(
-                                context, assignment.image!),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: Image.network(
-                                assignment.image!,
-                                height: 200,
-                                fit: BoxFit.cover,
+                        margin: const EdgeInsets.only(bottom: 16),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                assignment.title,
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
-                          ),
-                        const SizedBox(height: 10),
+                              const SizedBox(height: 6),
+                              Text(
+                                'Subject: ${assignment.subject}',
+                                style: TextStyle(color: Colors.grey[700]),
+                              ),
+                              Text(
+                                'Marks: ${assignment.mark}',
+                                style: TextStyle(color: Colors.grey[700]),
+                              ),
+                              Text(
+                                'Due Date: $date $time',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: isOverdue ? Colors.red : AppConstants.mainColor,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
 
-                        // Open document button if available
-                        if (assignment.document != null)
-                          ElevatedButton.icon(
-                            onPressed: () => _openDocument(assignment.document!),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppConstants.mainColor,
-                            ),
-                            icon: const Icon(Icons.picture_as_pdf,
-                                color: Colors.white),
-                            label: const Text(
-                              'Open Document',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ),
-                        const SizedBox(height: 10),
+                              // Display image if available
+                              if (assignment.image != null)
+                                InkWell(
+                                  onTap: () => _openFullScreenImage(context, assignment.image!),
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: Image.network(
+                                      assignment.image!,
+                                      height: 200,
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                              const SizedBox(height: 10),
 
-                        ElevatedButton(
-                          onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => FacAssignments(),
-                          ),
-                        );
-                      },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppConstants.mainColor,
-                            elevation: 5,
-                          ),
-                          child: const Text(
-                            'Upload new assignment',
-                            style: TextStyle(fontSize: 16, color: Colors.white),
+                              // Open document button if available
+                              if (assignment.document != null)
+                                ElevatedButton.icon(
+                                  onPressed: () => _openDocument(assignment.document!),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppConstants.mainColor,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    elevation: 3,
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                  ),
+                                  icon: const Icon(Icons.picture_as_pdf, color: Colors.white),
+                                  label: const Text(
+                                    'Open Document',
+                                    style: TextStyle(fontSize: 16, color: Colors.white),
+                                  ),
+                                ),
+                              const SizedBox(height: 12),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
-                );
-              },
+                ),
+                _uploadAssignmentButton(context),
+              ],
             );
           }
         },
+      ),
+    );
+  }
+
+  // Upload assignment button (always visible)
+  Widget _uploadAssignmentButton(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: ElevatedButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) => FacAssignments(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: child,
+                );
+              },
+            ),
+          );
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppConstants.mainColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          elevation: 3,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+        ),
+        child: const Text(
+          ' Upload New Assignment ',
+          style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
+        ),
       ),
     );
   }
@@ -154,8 +213,7 @@ class _FacAssignmentsDisplayState extends State<FacAssignmentsDisplay> {
 
   void _openDocument(String documentUrl) async {
     if (await canLaunchUrl(Uri.parse(documentUrl))) {
-      await launchUrl(Uri.parse(documentUrl),
-          mode: LaunchMode.externalApplication);
+      await launchUrl(Uri.parse(documentUrl), mode: LaunchMode.externalApplication);
     } else {
       debugPrint("Could not open document.");
     }

@@ -1,155 +1,10 @@
-// import 'package:flutter/material.dart';
-// import 'stu_details.dart';
-// import '../../models/students/timetable_model.dart';
-// import '../../services/students/timetable_service.dart';
-
-// class ClassDetailsPage extends StatefulWidget {
-//   final String accessToken;
-
-//   const ClassDetailsPage({super.key, required this.accessToken});
-
-//   @override
-//   ClassDetailsPageState createState() => ClassDetailsPageState();
-// }
-
-// class ClassDetailsPageState extends State<ClassDetailsPage> {
-//   Timetable? timetable;
-//   bool isLoading = true;
-
-//   final List<String> timeSlots = [
-//     "Period 1", "Period 2", "Period 3", "Period 4", "Period 5",
-//     "Period 6", "Period 7", "Period 8", "Period 9", "Period 10", "Period 11"
-//   ]; // 11 periods
-
-//     final List<Map<String, String>> students = [
-//     {'name': 'Alice Johnson', 'id': 'S101'},
-//     {'name': 'Bob Smith', 'id': 'S102'},
-//     {'name': 'Charlie Brown', 'id': 'S103'},
-//     {'name': 'David Williams', 'id': 'S104'},
-//     {'name': 'Emma Wilson', 'id': 'S105'},
-//   ];
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     fetchTimetable();
-//   }
-
-//   Future<void> fetchTimetable() async {
-//     Timetable? fetchedTimetable =
-//         await TimetableService.fetchTimetable(widget.accessToken);
-//     setState(() {
-//       timetable = fetchedTimetable;
-//       print(timetable);
-//       isLoading = false;
-//     });
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(title: const Text("Class Details")),
-//       body: isLoading
-//         ? const Center(child: CircularProgressIndicator()) // Show loading indicator
-//         : timetable == null
-//             ? const Center(child: Text("Failed to load timetable")) // Handle null case
-//             : SingleChildScrollView(
-//         padding: const EdgeInsets.all(10),
-//         child: Column(
-//           children: [
-//             SingleChildScrollView(
-//                     scrollDirection: Axis.horizontal, // Allow horizontal scrolling
-//                     child: SingleChildScrollView(
-//                       scrollDirection: Axis.vertical, // Allow vertical scrolling
-//                       child: DataTable(
-//                         border: TableBorder.all(color: Colors.black),
-//                         columns: _generateColumns(),
-//                         rows: _generateRows(),
-//                       ),
-//                     ),
-//                   ),
-
-//             const Divider(),
-
-//             // Student List
-//             const Text("Students", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-//             ...students.map((student) => Card(
-//                   margin: const EdgeInsets.symmetric(vertical: 5),
-//                   child: ListTile(
-//                     leading: const Icon(Icons.person),
-//                     title: Text(student['name']!),
-//                     trailing: const Icon(Icons.arrow_forward_ios),
-//                     onTap: () {
-//                       Navigator.push(
-//                         context,
-//                         MaterialPageRoute(
-//                           builder: (context) => StudentDetailsPage(
-//       studentData: {
-//         "user": {
-//           "username": "student1@student.com",
-//           "email": "student1@student.com",
-//           "role": "student"
-//         },
-//         "enrollment_number": "ENR001",
-//         "standard": 9,
-//         "section": "C",
-//         "subjects": ["Math", "Science", "English", "History", "Geography"],
-//         "academic_year": "2024-2025",
-//         "attendance_percent": 85,
-//         "student_code": "student1@student.com-9-C",
-//         "image": null,  // Change to an image URL if available
-//       },
-//     ),
-//                         ),
-//                       );
-//                     },
-//                   ),
-//                 )),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-
-//   List<DataColumn> _generateColumns() {
-//     return [
-//       const DataColumn(
-//           label: Text("Day", style: TextStyle(fontWeight: FontWeight.bold))),
-//       ...timeSlots.map((slot) => DataColumn(
-//           label: Text(slot, style: const TextStyle(fontWeight: FontWeight.bold))))
-//     ];
-//   }
-
-//   // Generate rows with each day's subjects aligned under the correct period
-//   List<DataRow> _generateRows() {
-//     if (timetable == null || timetable!.schedule.isEmpty) {
-//     return [];
-//   }
-//     List<DataRow> rows = [];
-
-//     for (String day in ["monday", "tuesday", "wednesday", "thursday", "friday"]) {
-//       if (timetable!.schedule[day] != null) {
-//         List<String> subjects = timetable!.schedule[day]!;
-
-//         // Create row for the day
-//         rows.add(DataRow(cells: [
-//           DataCell(Text(day.substring(0,3).toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold))),
-//           ...List.generate(11, (index) => DataCell(
-//               index < subjects.length ? Text(subjects[index]) : const Text("")))
-//         ]));
-//       }
-//     }
-
-//     return rows;
-//   }
-// }
-
 import 'package:flutter/material.dart';
 import 'stu_details.dart';
 import '../../models/faculty/stu_list_model.dart';
 import '../../services/faculty/stu_list_service.dart';
 import '../../models/students/timetable_model.dart';
 import '../../services/students/timetable_service.dart';
+import '../../utils/constants.dart'; 
 
 class ClassDetailsPage extends StatefulWidget {
   final String accessToken;
@@ -164,12 +19,7 @@ class ClassDetailsPageState extends State<ClassDetailsPage> {
   Timetable? timetable;
   List<Student> students = [];
   bool isLoading = true;
-
-  List<String>? timeSlots;// = List.generate(timetable.schedule[0].length, (i) => "Period ${i + 1}");
-  // [
-  //   "Period 1", "Period 2", "Period 3", "Period 4", "Period 5",
-  //   "Period 6", "Period 7", "Period 8", "Period 9", "Period 10", "Period 11"
-  // ];
+  int maxPeriods = 0;
 
   @override
   void initState() {
@@ -184,8 +34,7 @@ class ClassDetailsPageState extends State<ClassDetailsPage> {
 
       setState(() {
         timetable = fetchedTimetable;
-        timeSlots = List.generate(timetable!.schedule["monday"]!.length, (i) => "Period ${i + 1}");
-        print(timeSlots);
+        maxPeriods = timetable!.schedule.values.map((list) => list.length).reduce((a, b) => a > b ? a : b);
         students = fetchedStudents;
         isLoading = false;
       });
@@ -200,87 +49,156 @@ class ClassDetailsPageState extends State<ClassDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Class Details")),
+      backgroundColor: AppConstants.mainColor.withOpacity(0.1),
+      appBar: AppBar(
+        title: const Text("Class Details", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        backgroundColor: AppConstants.mainColor,
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(16),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      child: DataTable(
-                        border: TableBorder.all(color: Colors.black),
-                        columns: _generateColumns(),
-                        rows: _generateRows(),
-                      ),
-                    ),
-                  ),
-                  const Divider(),
-                  const Text(
-                    "Students",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  ...students.map((student) => Card(
-                        margin: const EdgeInsets.symmetric(vertical: 5),
-                        child: ListTile(
-                          leading: const Icon(Icons.person),
-                          title: Text(student.username),
-                          trailing: const Icon(Icons.arrow_forward_ios),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => StudentDetailsPage(
-                                  studentData: {
-                                    "user": {
-                                      "username": student.username,
-                                      "email": "${student.username}@student.com",
-                                      "role": "student"
-                                    },
-                                    "student_code": student.studentCode,
-                                    "image": null,
-                                  },
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      )),
+                  _buildSectionTitle("Timetable"),
+                  const SizedBox(height: 10),
+                  _buildTimetableCard(),
+                  const Divider(height: 30, thickness: 1),
+
+                  _buildSectionTitle("Students"),
+                  const SizedBox(height: 10),
+                  _buildStudentList(),
                 ],
               ),
             ),
     );
   }
 
-  List<DataColumn> _generateColumns() {
+  /// Custom styled section title
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: TextStyle(
+        fontSize: 22,
+        fontWeight: FontWeight.bold,
+        color: AppConstants.mainColor,
+      ),
+    );
+  }
+
+  /// Wraps the timetable inside a Card
+  Widget _buildTimetableCard() {
+    if (timetable == null || timetable!.schedule.isEmpty) {
+      return const Text("No timetable available");
+    }
+
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: DataTable(
+            border: TableBorder.all(color: Colors.black.withOpacity(0.2)),
+            headingRowColor: MaterialStateProperty.all(AppConstants.mainColor),
+            headingTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            columns: _generateTableColumns(),
+            rows: _generateTableRows(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  List<DataColumn> _generateTableColumns() {
     return [
-      const DataColumn(label: Text("Day", style: TextStyle(fontWeight: FontWeight.bold))),
-      ...timeSlots!.map((slot) => DataColumn(
-          label: Text(slot, style: const TextStyle(fontWeight: FontWeight.bold))))
+      const DataColumn(
+          label: Text("PERIOD", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
+      ...["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"].map(
+        (day) => DataColumn(
+          label: Text(
+            day.substring(0, 3).toUpperCase(),
+            style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+          ),
+        ),
+      ),
     ];
   }
 
-  List<DataRow> _generateRows() {
-    if (timetable == null || timetable!.schedule.isEmpty) {
-      return [];
-    }
+  List<DataRow> _generateTableRows() {
     List<DataRow> rows = [];
+    int periodNumber = 1;
 
-    for (String day in ["monday", "tuesday", "wednesday", "thursday", "friday"]) {
-      if (timetable!.schedule[day] != null) {
-        List<String> subjects = timetable!.schedule[day]!;
-        rows.add(DataRow(cells: [
-          DataCell(Text(day.substring(0, 3).toUpperCase(),
-              style: const TextStyle(fontWeight: FontWeight.bold))),
-          ...List.generate(11, (index) => DataCell(
-              index < subjects.length ? Text(subjects[index]) : const Text("")))
-        ]));
+    for (int i = 0; i < maxPeriods; i++) {
+      bool isShortBreak = false;
+
+      List<String> subjects = ["monday", "tuesday", "wednesday", "thursday", "friday"].map((day) {
+        if (timetable!.schedule[day] != null && i < timetable!.schedule[day]!.length) {
+          return timetable!.schedule[day]![i];
+        }
+        return "-";
+      }).toList();
+
+      if (subjects.contains("Break")) {
+        isShortBreak = true;
+      }
+
+      rows.add(DataRow(cells: [
+        DataCell(Text(
+          isShortBreak ? "Break" : "P$periodNumber",
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+        )),
+        ...subjects.map((subject) => DataCell(Text(subject))),
+      ]));
+
+      if (!isShortBreak) {
+        periodNumber++;
       }
     }
 
     return rows;
+  }
+
+  /// Styled student list with improved UI
+  Widget _buildStudentList() {
+    return Column(
+      children: students.map((student) {
+        return Card(
+          elevation: 3,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          margin: const EdgeInsets.symmetric(vertical: 5),
+          child: ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            leading: CircleAvatar(
+              backgroundColor: AppConstants.mainColor.withOpacity(0.1),
+              child: const Icon(Icons.person, color: Colors.black),
+            ),
+            title: Text(student.username, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 18),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => StudentDetailsPage(
+                    studentData: {
+                      "user": {
+                        "username": student.username,
+                        "email": "${student.username}@student.com",
+                        "role": "student"
+                      },
+                      "student_code": student.studentCode,
+                      "image": null,
+                    },
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      }).toList(),
+    );
   }
 }

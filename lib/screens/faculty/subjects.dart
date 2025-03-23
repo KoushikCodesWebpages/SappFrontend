@@ -1,14 +1,13 @@
 import 'package:eg/config/mapp_config.dart';
 import 'package:eg/screens/faculty/portions.dart';
-import 'package:eg/screens/faculty/portions_display.dart';
 import 'package:flutter/material.dart';
-import '../../models/students/timetable_model.dart'; // Replace with your actual model file
-import '../../models/students/portions_model.dart'; // Add this import for Portion model
-import '../../services/students/timetable_service.dart'; // Replace with your actual service file
-import '../../services/students/portions_service.dart'; // Add this import for Portion service
+import '../../models/students/timetable_model.dart';
+import '../../models/students/portions_model.dart';
+import '../../services/students/timetable_service.dart';
+import '../../services/students/portions_service.dart';
 import '../../utils/constants.dart';
-import '../../widgets/pdf_viewer_page.dart';
 import '../../widgets/full_screen_img.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SubjectsPage extends StatefulWidget {
   const SubjectsPage({super.key});
@@ -18,10 +17,9 @@ class SubjectsPage extends StatefulWidget {
 }
 
 class _SubjectsPageState extends State<SubjectsPage> {
-  Set<String> expandedClasses = {}; // Stores which classes are expanded
-  bool isLoading = true; // Loading state
-  bool isPortionsLoading = true; // Loading state for portions
-
+  Set<String> expandedClasses = {};
+  bool isLoading = true;
+  bool isPortionsLoading = true;
   Timetable? standardTimetable;
   Map<String, Timetable>? classTimetables;
   List<Portion> portions = [];
@@ -35,22 +33,20 @@ class _SubjectsPageState extends State<SubjectsPage> {
 
   Future<void> fetchTimetable() async {
     try {
-      String accessToken = AppConfig.accessToken; 
-
-      // Fetch standard timetable
+      String accessToken = AppConfig.accessToken;
       standardTimetable = await TimetableService.getStandardTimetable(accessToken);
-
-      // Fetch class-specific timetables
       classTimetables = await TimetableService.getClassTimetables(accessToken);
-
-      setState(() {
-        isLoading = false;
-      });
     } catch (error) {
       print("Error fetching timetable: $error");
-      setState(() {
-        isLoading = false;
-      });
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
+
+  Future<void> _openPDF(String submittedDocumentUrl) async {
+    final Uri url = Uri.parse(submittedDocumentUrl!);
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      throw 'Could not launch $submittedDocumentUrl';
     }
   }
 
@@ -58,214 +54,201 @@ class _SubjectsPageState extends State<SubjectsPage> {
     try {
       String accessToken = AppConfig.accessToken;
       portions = await PortionService.fetchPortions(accessToken);
-      setState(() {
-        isPortionsLoading = false;
-      });
     } catch (error) {
       print("Error fetching portions: $error");
-      setState(() {
-        isPortionsLoading = false;
-      });
+    } finally {
+      setState(() => isPortionsLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Class Timetable")),
+      backgroundColor: AppConstants.mainColor.withOpacity(0.1),
+      appBar: AppBar(
+        title: const Text("Class Timetable", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
+        backgroundColor: AppConstants.mainColor,
+        elevation: 4,
+      ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator()) // Show loading indicator
+          ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text("Standard Timetable",
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 10),
-                    _buildTimetableTable(standardTimetable),
-                    const SizedBox(height: 20),
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: classTimetables?.length ?? 0,
-                      itemBuilder: (context, index) {
-                        String className = classTimetables!.keys.elementAt(index);
-                        return Column(
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  if (expandedClasses.contains(className)) {
-                                    expandedClasses.remove(className);
-                                  } else {
-                                    expandedClasses.add(className);
-                                  }
-                                });
-                              },
-                              child: Card(
-                                color: Colors.blueAccent,
-                                elevation: 4,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(15.0),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(className,
-                                          style: const TextStyle(
-                                              fontSize: 18, color: Colors.white)),
-                                      Icon(
-                                        expandedClasses.contains(className)
-                                            ? Icons.expand_less
-                                            : Icons.expand_more,
-                                        color: Colors.white,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            if (expandedClasses.contains(className))
-                              _buildTimetableTable(classTimetables![className]!),
-                          ],
-                        );
-                      },
-                    ),
-                    
-                    const SizedBox(height: 20),
-                    const Text("Uploaded Portions",
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 10),
-                    isPortionsLoading
-                        ? const Center(child: CircularProgressIndicator())
-                        : portions.isEmpty
-                            ? const Center(child: Text("No portions available"))
-                            : ListView.builder(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: portions.length,
-                                itemBuilder: (context, index) {
-                                  Portion portion = portions[index];
-                                  return Card(
-                                    elevation: 4,
-                                    margin: const EdgeInsets.symmetric(vertical: 5),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(10.0),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            "${portion.subject} - ${portion.standard}",
-                                            style: const TextStyle(
-                                                fontSize: 16, fontWeight: FontWeight.bold),
-                                          ),
-                                          const SizedBox(height: 5),
-                                          Text("Academic Year: ${portion.academicYear}"),
-                                          const SizedBox(height: 5),
-                                          Text("Description: ${portion.description}"),
-                                          const SizedBox(height: 5),
-                                          Text("Reference: ${portion.reference}"),
-                                          const SizedBox(height: 5),
-                                          Text("Last Updated: ${portion.lastUpdated}"),
-                                          const SizedBox(height: 5),
-                                          if (portion.units.isNotEmpty)
-                                            Text("Units: ${portion.units.join(", ")}"),
-                                          if (portion.titles.isNotEmpty)
-                                            Text("Titles: ${portion.titles.join(", ")}"),
-                                          if (portion.image != null)
-                                            GestureDetector(
-                                              onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => FullScreenImagePage(imageUrl: portion.image!),
-            ),
-          );
-        },
-                                            child: Image.network(portion.image!,
-                                                height: 100, fit: BoxFit.cover),
-                                            ),
-                                          if (portion.document != null)
-                                            TextButton(
-                                              onPressed: () {
-                                                // Open document in browser
-                                               
-    if (portion.document != null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PDFViewerPage(pdfUrl: portion.document!),
-        ),
-      );
-    }
-  
-                                              },
-                                              child: const Text(
-                                                "View Document",
-                                                style: TextStyle(color: Colors.blue),
-                                              ),
-                                            ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-
-                    const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => PostPortionScreen(),
-                          ),
-                        );
-                      },
-                      style: ButtonStyle(
-                          backgroundColor: WidgetStateProperty.all(AppConstants.mainColor),
-                          elevation: WidgetStateProperty.all(5)),
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildSectionTitle("Standard Timetable"),
+                  _buildTimetableTable(standardTimetable),
+                  const SizedBox(height: 20),
+                  _buildSectionTitle("Class-wise Timetables"),
+                  _buildClassTimetables(),
+                  const SizedBox(height: 20),
+                  _buildSectionTitle("Uploaded Portions"),
+                  _buildPortionsList(),
+                  const SizedBox(height: 20),
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => PostPortionScreen()),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppConstants.mainColor,
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        elevation: 5,
+                      ),
                       child: const Text(
                         'Post Portions',
                         style: TextStyle(fontSize: 16, color: Colors.white),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
     );
   }
 
-  Widget _buildTimetableTable(Timetable? timetable) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: DataTable(
-          border: TableBorder.all(color: Colors.black),
-          columns: _generateColumns(),
-          rows: _generateRows(timetable),
-        ),
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Text(
+        title,
+        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
       ),
     );
   }
 
-  List<DataColumn> _generateColumns() {
-    return [
-      const DataColumn(label: Text("Day", style: TextStyle(fontWeight: FontWeight.bold))),
-      ...List.generate(11, (index) => DataColumn(label: Text("Period ${index + 1}"))),
-    ];
+  Widget _buildClassTimetables() {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: classTimetables?.length ?? 0,
+      itemBuilder: (context, index) {
+        String className = classTimetables!.keys.elementAt(index);
+        return Column(
+          children: [
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  expandedClasses.contains(className)
+                      ? expandedClasses.remove(className)
+                      : expandedClasses.add(className);
+                });
+              },
+              child: Card(
+                color: AppConstants.mainColor,
+                elevation: 4,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                child: Padding(
+                  padding: const EdgeInsets.all(15),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(className, style: const TextStyle(fontSize: 18, color: Colors.white)),
+                      Icon(
+                        expandedClasses.contains(className) ? Icons.expand_less : Icons.expand_more,
+                        color: Colors.white,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            if (expandedClasses.contains(className)) _buildTimetableTable(classTimetables![className]!),
+          ],
+        );
+      },
+    );
   }
 
-  List<DataRow> _generateRows(Timetable? timetable) {
-    return timetable!.schedule.entries.map((entry) {
+  Widget _buildPortionsList() {
+    if (isPortionsLoading) return const Center(child: CircularProgressIndicator());
+    if (portions.isEmpty) return const Center(child: Text("No portions available"));
+
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: portions.length,
+      itemBuilder: (context, index) {
+        Portion portion = portions[index];
+        return Card(
+          margin: const EdgeInsets.symmetric(vertical: 6),
+          elevation: 4,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("${portion.subject} - ${portion.standard}",
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 5),
+                Text("Academic Year: ${portion.academicYear}"),
+                Text("Description: ${portion.description}"),
+                Text("Reference: ${portion.reference}"),
+                Text("Last Updated: ${portion.lastUpdated}"),
+                if (portion.units.isNotEmpty) Text("Units: ${portion.units.join(", ")}"),
+                if (portion.titles.isNotEmpty) Text("Titles: ${portion.titles.join(", ")}"),
+                if (portion.image != null)
+                  GestureDetector(
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => FullScreenImagePage(imageUrl: portion.image!),
+                      ),
+                    ),
+                    child: Image.network(portion.image!, height: 100, fit: BoxFit.cover),
+                  ),
+                if (portion.document != null)
+                  TextButton(
+                    onPressed: () =>_openPDF(portion.document!),
+                    child: const Text("View Document", style: TextStyle(color: Colors.blue)),
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildTimetableTable(Timetable? timetable) {
+  if (timetable == null || timetable.schedule.isEmpty) {
+    return const Center(child: Text("No timetable available"));
+  }
+
+  int maxPeriods = timetable.schedule.values.map((list) => list.length).fold(0, (a, b) => a > b ? a : b);
+
+  return SingleChildScrollView(
+    scrollDirection: Axis.horizontal,
+    child: DataTable(
+      border: TableBorder.all(color: Colors.black.withOpacity(0.2)),
+      columns: _generateColumns(timetable),
+      rows: _generateRows(timetable, maxPeriods),
+      headingRowColor: MaterialStateProperty.all(AppConstants.mainColor), // Set header bg color
+      headingTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold), // Set header text color
+    ),
+  );
+}
+
+List<DataColumn> _generateColumns(Timetable timetable) {
+  return [
+    const DataColumn(label: Text("PERIOD",)),
+    ...timetable.schedule.keys.map((day) => DataColumn(label: Text(day.substring(0, 3).toUpperCase()))),
+  ];
+}
+
+
+  List<DataRow> _generateRows(Timetable timetable, int maxPeriods) {
+    return List.generate(maxPeriods, (index) {
       return DataRow(cells: [
-        DataCell(Text(entry.key.substring(0, 3).toUpperCase(),
-            style: const TextStyle(fontWeight: FontWeight.bold))),
-        ...entry.value.map((subject) => DataCell(Text(subject.isNotEmpty ? subject : "-"))),
+        DataCell(Text("P${index + 1}", style: const TextStyle(fontWeight: FontWeight.bold))),
+        ...timetable.schedule.keys.map((day) {
+          return DataCell(Text(index < timetable.schedule[day]!.length ? timetable.schedule[day]![index] : "-"));
+        }),
       ]);
-    }).toList();
+    });
   }
 }

@@ -9,6 +9,7 @@ import 'package:eg/screens/students/results.dart';
 import 'package:eg/screens/students/timetable.dart';
 import 'students/dashboard.dart';
 import '../utils/constants.dart';
+import 'dart:io';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -41,7 +42,28 @@ class MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: () async {
+        bool exitApp = await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Exit App'),
+            content: const Text('Do you want to exit the app?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => exit(0),
+                child: const Text('Exit'),
+              ),
+            ],
+          ),
+        );
+        return exitApp;
+      },
+      child: Scaffold(
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),
         child: _pages[_selectedIndex],
@@ -84,7 +106,7 @@ class MainScreenState extends State<MainScreen> {
                   : BottomNavigationBarItem(
                       icon: Icon(Icons.people_alt,
                           color: _selectedIndex == 1 ? AppConstants.mainColor : Colors.blueGrey),
-                      label: 'Class Details',
+                      label: 'Subjects',
                     ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.assignment,
@@ -102,6 +124,7 @@ class MainScreenState extends State<MainScreen> {
           ),
         ),
       ),
+    )
     );
   }
 }

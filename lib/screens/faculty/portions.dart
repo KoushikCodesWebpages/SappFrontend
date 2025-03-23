@@ -2,13 +2,17 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import '../../services/faculty/portions_service.dart';
 import '../../widgets/faculty/file_picker_widget.dart';
+import '../../utils/constants.dart'; // Assuming you have this file for colors.
 
 class PostPortionScreen extends StatefulWidget {
+
+  const PostPortionScreen({super.key});
+
   @override
-  _PostPortionScreenState createState() => _PostPortionScreenState();
+  PostPortionScreenState createState() => PostPortionScreenState();
 }
 
-class _PostPortionScreenState extends State<PostPortionScreen> {
+class PostPortionScreenState extends State<PostPortionScreen> {
   final TextEditingController standardController = TextEditingController();
   final TextEditingController academicYearController = TextEditingController();
   final TextEditingController subjectController = TextEditingController();
@@ -46,36 +50,108 @@ class _PostPortionScreenState extends State<PostPortionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Post Portion")),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(controller: standardController, decoration: InputDecoration(labelText: "Standard")),
-            TextField(controller: academicYearController, decoration: InputDecoration(labelText: "Academic Year")),
-            TextField(controller: subjectController, decoration: InputDecoration(labelText: "Subject")),
-            TextField(controller: unitController, decoration: InputDecoration(labelText: "Units (comma separated)")),
-            TextField(controller: titleController, decoration: InputDecoration(labelText: "Titles (comma separated)")),
-            TextField(controller: descriptionController, decoration: InputDecoration(labelText: "Description")),
-            TextField(controller: referenceController, decoration: InputDecoration(labelText: "Reference")),
+      backgroundColor: Colors.white, // Background color
+      appBar: AppBar(
+        title: const Text("Post Portion", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
+        backgroundColor: AppConstants.mainColor,
+        foregroundColor: Colors.white,
+        //centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Card(
+            elevation: 5,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildTextField(standardController, "Standard"),
+                  _buildTextField(academicYearController, "Academic Year"),
+                  _buildTextField(subjectController, "Subject"),
+                  _buildTextField(unitController, "Units (comma separated)"),
+                  _buildTextField(titleController, "Titles (comma separated)"),
+                  _buildTextField(descriptionController, "Description", maxLines: 3),
+                  _buildTextField(referenceController, "Reference"),
+                  const SizedBox(height: 16),
 
-            FilePickerWidget(fileType: "image", onFileSelected: (bytes, name) {
-              setState(() {
-                imageBytes = bytes;
-                imageName = name;
-              });
-            }),
+                  // File Picker Widgets
+                  _buildSectionTitle("Upload Image"),
+                  FilePickerWidget(fileType: "image", onFileSelected: (bytes, name) {
+                    setState(() {
+                      imageBytes = bytes;
+                      imageName = name;
+                    });
+                  }),
 
-            FilePickerWidget(fileType: "document", onFileSelected: (bytes, name) {
-              setState(() {
-                docBytes = bytes;
-                docName = name;
-              });
-            }),
+                  const SizedBox(height: 16),
+                  _buildSectionTitle("Upload Document"),
+                  FilePickerWidget(fileType: "document", onFileSelected: (bytes, name) {
+                    setState(() {
+                      docBytes = bytes;
+                      docName = name;
+                    });
+                  }),
 
-            SizedBox(height: 20),
-            ElevatedButton(onPressed: submitPortion, child: Text("Submit")),
-          ],
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: submitPortion,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppConstants.mainColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    child: const Text(
+                      "Submit",
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String label, {int maxLines = 1}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: TextField(
+        controller: controller,
+        maxLines: maxLines,
+        decoration: InputDecoration(
+          labelText: label,
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: AppConstants.mainColor.withOpacity(0.5)),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: AppConstants.mainColor, width: 2),
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+          color: AppConstants.mainColor,
         ),
       ),
     );

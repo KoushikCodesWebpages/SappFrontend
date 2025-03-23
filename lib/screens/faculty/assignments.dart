@@ -5,6 +5,9 @@ import '../../models/faculty/assignments_model.dart';
 import '../../services/faculty/assignments_service.dart';
 
 class FacAssignments extends StatefulWidget {
+
+  const FacAssignments({super.key});
+
   @override
   FacAssignmentsState createState() => FacAssignmentsState();
 }
@@ -55,14 +58,14 @@ class FacAssignmentsState extends State<FacAssignments> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Post Assignment", style: TextStyle(color: Colors.white),), backgroundColor: AppConstants.mainColor,),
+      backgroundColor: AppConstants.mainColor.withOpacity(0.1),
+      appBar: AppBar(title: Text("Post Assignment", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),), backgroundColor: AppConstants.mainColor,),
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: ListView(
             children: [
-              //_buildTextField(_titleController, "Title"),
               TextInputBox(control: _titleController, label: "Title",),
               SizedBox(height: 10,),
               TextInputBox(control: _descriptionController, label: "Description", ),
@@ -76,13 +79,6 @@ class FacAssignmentsState extends State<FacAssignments> {
               TextInputBox(control: _sectionController, label: "Section",),
               SizedBox(height: 10,),
               TextInputBox(control: _academicYearController, label: "Academic Year",),
-              // _buildTextField(_descriptionController, "Description"),
-              // _buildTextField(_subjectController, "Subject"),
-              // _buildTextField(_markController, "Marks", isNumber: true),
-              // _buildTextField(_standardController, "Standard"),
-              // _buildTextField(_sectionController, "Section"),
-              // _buildTextField(_academicYearController, "Academic Year"),
-              //_buildTextField(_createdByController, "Created By"),
 
               // Due Date Picker
               ListTile(
@@ -112,7 +108,6 @@ class FacAssignmentsState extends State<FacAssignments> {
                         ),
                         
                         child: Text('Post Assignment', style: TextStyle(fontSize: 16, color: Colors.white),),
-                //child: Text("Post Assignment"),
               ),
             ],
           ),
@@ -120,20 +115,5 @@ class FacAssignmentsState extends State<FacAssignments> {
       ),
     );
   }
-
-  // Helper method for text fields
-  // Widget _buildTextField(TextEditingController controller, String label,
-  //     {bool isNumber = false}) {
-  //   return TextFormField(
-  //     controller: controller,
-  //     decoration: InputDecoration(labelText: label),
-  //     keyboardType: isNumber ? TextInputType.number : TextInputType.text,
-  //     validator: (value) {
-  //       if (value == null || value.isEmpty) {
-  //         return "$label is required";
-  //       }
-  //       return null;
-  //     },
-  //   );
-  // }
 }
+
